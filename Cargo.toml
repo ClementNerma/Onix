@@ -11,4 +11,5 @@ axum = "0.5.16"
 clap = { version = "4.0.15", features = ["derive"] }
 env_logger = "0.9.1"
 log = "0.4.17"
+os_pipe = "1.1.1"
 tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }

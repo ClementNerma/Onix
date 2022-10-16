@@ -12,14 +12,14 @@ use log::{info, LevelFilter};
 
 #[tokio::main]
 async fn main() {
+    let cmd = Cmd::parse();
+
     env_logger::builder()
         .format_target(false)
-        .filter_level(LevelFilter::Info)
+        .filter_level(cmd.logging_level.unwrap_or(LevelFilter::Info))
         .init();
 
     info!("Application is starting...");
-
-    let cmd = Cmd::parse();
 
     let config = StateConfig {
         address: cmd.address.unwrap_or_else(|| "127.0.0.1".into()),
