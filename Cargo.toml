@@ -2,3 +2,13 @@
 name = "onix-server"
 version = "0.1.0"
 edition = "2021"
+
+[dependencies]
+async-graphql = { version = "4.0.15", default-features = false }
+async-graphql-axum = "4.0.15"
+axum = "0.5.16"
+clap = { version = "4.0.15", features = ["derive"] }
+env_logger = "0.9.1"
+log = "0.4.17"
+paste = "1.0.9"
+tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
