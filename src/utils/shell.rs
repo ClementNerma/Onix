@@ -2,18 +2,25 @@ use std::process::{Command, Output};
 
 use anyhow::{bail, Context, Result};
 
-pub fn run_cmd(cmd: &str, args: &[&str]) -> Result<String> {
-    run_custom_cmd(Command::new(cmd).args(args))
+pub async fn run_cmd(cmd: &str, args: &[&str]) -> Result<String> {
+    let mut cmd = Command::new(cmd);
+    cmd.args(args);
+
+    run_custom_cmd(cmd).await
 }
 
-pub fn run_custom_cmd(cmd: &mut Command) -> Result<String> {
-    let output = cmd
-        .output()
-        .with_context(|| format!("Failed to run command '{cmd:?}'"))?;
+pub async fn run_custom_cmd(mut cmd: Command) -> Result<String> {
+    tokio::spawn(async move {
+        let output = cmd
+            .output()
+            .with_context(|| format!("Failed to run command '{cmd:?}'"))?;
 
-    ensure_cmd_success(&cmd, &output)?;
+        ensure_cmd_success(&cmd, &output)?;
 
-    Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+        Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+    })
+    .await
+    .context("Spawned task failed")?
 }
 
 pub fn ensure_cmd_success(cmd: &Command, output: &Output) -> Result<()> {

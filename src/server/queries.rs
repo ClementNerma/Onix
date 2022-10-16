@@ -14,10 +14,10 @@ impl QueryRoot {
     }
 
     async fn docker_version(&self) -> Result<String> {
-        docker::docker_version().map_err(format_err)
+        docker::docker_version().await.map_err(format_err)
     }
 
     async fn docker_compose_version(&self) -> Result<String> {
-        docker::docker_compose_version().map_err(format_err)
+        docker::docker_compose_version().await.map_err(format_err)
     }
 }
