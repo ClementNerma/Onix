@@ -1,47 +1,41 @@
-use paste::paste;
 use std::process::{Command, Output};
 
-use crate::graphqlify;
+use anyhow::{bail, Context, Result};
 
-graphqlify!(
-    pub enum CmdError {
-        FailedToRun {
-            message: String,
-            command: String,
-        },
-        CommandFailed {
-            exit_code: Option<i32>,
-            command: String,
-            stdout: String,
-            stderr: String,
-        },
-    }
-);
-
-pub fn run_cmd(cmd: &str, args: &[&str]) -> Result<String, CmdError> {
+pub fn run_cmd(cmd: &str, args: &[&str]) -> Result<String> {
     run_custom_cmd(Command::new(cmd).args(args))
 }
 
-pub fn run_custom_cmd(cmd: &mut Command) -> Result<String, CmdError> {
-    let output = cmd.output().map_err(|err| CmdError::FailedToRun {
-        command: format!("{cmd:?}"),
-        message: format!("{err}"),
-    })?;
+pub fn run_custom_cmd(cmd: &mut Command) -> Result<String> {
+    let output = cmd
+        .output()
+        .with_context(|| format!("Failed to run command '{cmd:?}'"))?;
 
     ensure_cmd_success(&cmd, &output)?;
 
     Ok(String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
-pub fn ensure_cmd_success(cmd: &Command, output: &Output) -> Result<(), CmdError> {
+pub fn ensure_cmd_success(cmd: &Command, output: &Output) -> Result<()> {
     if output.status.success() {
         Ok(())
     } else {
-        Err(CmdError::CommandFailed {
-            command: format!("{cmd:?}"),
-            exit_code: output.status.code(),
-            stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
-            stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
-        })
+        bail!(
+            "Failed to run command '{cmd:?}' (exit code: {}):\n\nSTDOUT:\n\n{}\n\nSTDERR:\n\n{}",
+            match output.status.code() {
+                Some(code) => code.to_string(),
+                None => "<no code>".to_string(),
+            },
+            String::from_utf8_lossy(&output.stdout)
+                .lines()
+                .map(|line| format!("    {line}"))
+                .collect::<Vec<_>>()
+                .join("\n"),
+            String::from_utf8_lossy(&output.stderr)
+                .lines()
+                .map(|line| format!("    {line}"))
+                .collect::<Vec<_>>()
+                .join("\n")
+        )
     }
 }
