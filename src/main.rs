@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 #![forbid(unused_must_use)]
 
+mod apps;
 mod cmd;
 mod docker;
 mod server;
