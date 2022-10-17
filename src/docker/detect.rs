@@ -1,14 +1,8 @@
 use anyhow::Result;
+use bollard::Docker;
 
-use crate::utils::shell::run_cmd;
+pub async fn docker_version(docker: &Docker) -> Result<Option<String>> {
+    let version = docker.version().await?;
 
-static DOCKER_CMD: &str = "docker";
-static DOCKER_COMPOSE_CMD: &str = "docker compose";
-
-pub async fn docker_version() -> Result<String> {
-    run_cmd(DOCKER_CMD, &["version"]).await
-}
-
-pub async fn docker_compose_version() -> Result<String> {
-    run_cmd(DOCKER_COMPOSE_CMD, &["version"]).await
+    Ok(version.version)
 }

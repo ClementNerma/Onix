@@ -7,6 +7,8 @@ mod server;
 mod utils;
 
 use self::{cmd::Cmd, server::StateConfig};
+use anyhow::{Context, Result};
+use bollard::Docker;
 use clap::Parser;
 use log::{info, LevelFilter};
 
@@ -21,16 +23,19 @@ async fn main() {
 
     info!("Application is starting...");
 
-    let config = StateConfig {
-        address: cmd.address.unwrap_or_else(|| "127.0.0.1".into()),
-        port: cmd.port,
-    };
-
-    if let Err(err) = inner_main(config).await {
-        eprintln!("Onix failed: {err}");
+    if let Err(err) = inner_main(cmd).await {
+        eprintln!("Onix failed: {err:?}");
     }
 }
 
-async fn inner_main(config: StateConfig) -> Result<(), String> {
+async fn inner_main(cmd: Cmd) -> Result<()> {
+    let docker = Docker::connect_with_local_defaults().context("Failed to connect to Docker")?;
+
+    let config = StateConfig {
+        address: cmd.address.unwrap_or_else(|| "127.0.0.1".into()),
+        port: cmd.port,
+        docker,
+    };
+
     server::start(config).await
 }

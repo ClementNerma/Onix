@@ -4,6 +4,7 @@ mod state;
 
 use std::sync::Arc;
 
+use anyhow::{anyhow, Context, Result};
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use axum::{extract::Extension, routing::get, Router, Server};
 use log::info;
@@ -16,7 +17,7 @@ use crate::server::{
 
 pub use self::state::StateConfig;
 
-pub async fn start(config: StateConfig) -> Result<(), String> {
+pub async fn start(config: StateConfig) -> Result<()> {
     let state = Arc::new(State::new(config));
 
     let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
@@ -30,12 +31,12 @@ pub async fn start(config: StateConfig) -> Result<(), String> {
 
     let addr = format!("{}:{}", state.address, state.port)
         .parse()
-        .map_err(|err| format!("Failed to parse listening address: {err}"))?;
+        .context("Failed to parse listening address")?;
 
     info!("Starting the server...");
 
     Server::bind(&addr)
         .serve(app.into_make_service())
         .await
-        .map_err(|err| format!("Server failed: {err}"))
+        .map_err(|err| anyhow!("Failed to run server: {err}"))
 }

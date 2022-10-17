@@ -1,9 +1,11 @@
-use async_graphql::Object;
+use async_graphql::{Context, Object};
 
 use crate::{
     docker,
     utils::graphql::{format_err, Result},
 };
+
+use super::graphql::get_state;
 
 pub struct QueryRoot;
 
@@ -13,11 +15,9 @@ impl QueryRoot {
         env!("CARGO_PKG_VERSION")
     }
 
-    async fn docker_version(&self) -> Result<String> {
-        docker::docker_version().await.map_err(format_err)
-    }
-
-    async fn docker_compose_version(&self) -> Result<String> {
-        docker::docker_compose_version().await.map_err(format_err)
+    async fn docker_version(&self, ctx: &Context<'_>) -> Result<Option<String>> {
+        docker::docker_version(&get_state(ctx).docker)
+            .await
+            .map_err(format_err)
     }
 }
