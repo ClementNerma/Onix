@@ -1,3 +1,8 @@
-mod detect;
+use anyhow::Result;
+use bollard::Docker;
 
-pub use detect::*;
+pub async fn docker_version(docker: &Docker) -> Result<Option<String>> {
+    let version = docker.version().await?;
+
+    Ok(version.version)
+}
