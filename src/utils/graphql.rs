@@ -23,7 +23,7 @@ macro_rules! graphql_enum {
         }
 
         impl $name {
-            pub fn graphqlify(self) -> ::paste::paste! { [<$name GraphQL>] } {
+            pub fn encode(self) -> ::paste::paste! { [<$name GraphQL>] } {
                 match self {
                     $($name::$pat_name $({ $($field_name),+ })? => ::paste::paste! {
                         [<$name GraphQL>]::$pat_name($crate::graphql_enum!(@internal[args] $name $pat_name => $($($field_name),+)?))
@@ -38,6 +38,16 @@ macro_rules! graphql_enum {
             pub enum [<$name GraphQL>] {
                 $($pat_name(::paste::paste! { [<$name $pat_name GraphQL>] })),+
             }
+
+            impl [<$name GraphQL>] {
+                pub fn decode(self) -> $name {
+                    self.into()
+                }
+
+                pub fn decode_cloned(&self) -> $name {
+                    self.clone().into()
+                }
+            }
         }
 
         $(
@@ -46,7 +56,16 @@ macro_rules! graphql_enum {
 
         impl From<$name> for ::paste::paste! { [<$name GraphQL>] } {
             fn from(from: $name) -> Self {
-                from.graphqlify()
+                from.encode()
+            }
+        }
+
+        impl Into<$name> for ::paste::paste! { [<$name GraphQL>] } {
+            fn into(self) -> $name {
+                #[allow(unused_variables)]
+                match self {
+                    $(Self::$pat_name(extr) => $crate::graphql_enum!(@internal[args_for_into] $name $pat_name (extr) => $($($field_name),+)?)),+
+                }
             }
         }
     };
@@ -77,7 +96,17 @@ macro_rules! graphql_enum {
 
     (@internal[args] $name:ident $pat_name: ident =>) => {
         ::paste::paste! { [<$name $pat_name GraphQL>] { __empty: $crate::utils::graphql::Void } }
-    }
+    };
+
+    (@internal[args_for_into] $name:ident $pat_name: ident ($extr: ident) => $($field_name:ident),+) => {
+        $name::$pat_name {
+            $($field_name: $extr.$field_name),+
+        }
+    };
+
+    (@internal[args_for_into] $name:ident $pat_name: ident ($extr: ident) =>) => {
+        $name::$pat_name
+    };
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash, Serialize, Deserialize)]

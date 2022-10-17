@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use anyhow::Result;
 use bollard::{container::Config, Docker};
 
-use super::app::{App, AppContainer, AppVolumeGraphQL};
+use super::app::{App, AppContainer, AppVolume, AppVolumeGraphQL};
 
 pub struct AppRunner<'a, 'b> {
     app: &'a App,
@@ -40,15 +40,24 @@ impl AppContainer {
             .map(|(name, value)| format!("{name}={value}"))
             .collect();
 
-        let mut volumes = HashMap::new();
+        let volumes = HashMap::new();
 
         for volume in &self.volumes {
-            match volume {
-                AppVolumeGraphQL::Disposable(_) => todo!(),
-                AppVolumeGraphQL::Internal(_) => todo!(),
-                AppVolumeGraphQL::External(_) => todo!(),
-                AppVolumeGraphQL::BindToPath(_) => todo!(),
-                AppVolumeGraphQL::GlobalPath(_) => todo!(),
+            match volume.decode_cloned() {
+                AppVolume::Disposable => todo!(),
+                AppVolume::Internal => todo!(),
+                AppVolume::External {
+                    accessible_path,
+                    readonly,
+                } => todo!(),
+                AppVolume::BindToPath {
+                    real_path,
+                    readonly,
+                } => todo!(),
+                AppVolume::GlobalPath {
+                    global_path_id,
+                    readonly,
+                } => todo!(),
             }
         }
 
