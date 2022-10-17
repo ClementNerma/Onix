@@ -1,5 +1,6 @@
 use anyhow::Error;
 use async_graphql::{InputValueError, InputValueResult, Scalar, ScalarType, Value};
+use serde::{Deserialize, Serialize};
 
 pub type Result<T> = std::result::Result<T, String>;
 
@@ -15,16 +16,18 @@ macro_rules! graphql_enum {
         $(#[$outer])*
         pub enum $name {
             $(
-                $pat_name {
-                    $($($field_name: $field_type),*)?
-                }
+                $pat_name $({
+                    $($field_name: $field_type),*
+                })?
             ),+
         }
 
         impl $name {
             pub fn graphqlify(self) -> ::paste::paste! { [<$name GraphQL>] } {
                 match self {
-                    $($name::$pat_name { $($($field_name),+)? } => ::paste::paste! { [<$name GraphQL>]::$pat_name(::paste::paste! { [<$name $pat_name GraphQL>] { $($($field_name),+)? } }) }),+
+                    $($name::$pat_name $({ $($field_name),+ })? => ::paste::paste! {
+                        [<$name GraphQL>]::$pat_name($crate::graphql_enum!(@internal[args] $name $pat_name => $($($field_name),+)?))
+                    }),+
                 }
             }
         }
@@ -37,13 +40,9 @@ macro_rules! graphql_enum {
             }
         }
 
-        $(::paste::paste! {
-            #[derive(::async_graphql::SimpleObject, ::serde::Serialize, Debug, Clone)]
-            $(#[$inner])*
-            pub struct [<$name $pat_name GraphQL>] {
-                $($($field_name: $field_type),+)?
-            }
-        })+
+        $(
+            $crate::graphql_enum!(@internal[struct_decl] $name $pat_name => $($inner)+ => $($($field_name: $field_type),*)?);
+        )+
 
         impl From<$name> for ::paste::paste! { [<$name GraphQL>] } {
             fn from(from: $name) -> Self {
@@ -51,8 +50,37 @@ macro_rules! graphql_enum {
             }
         }
     };
+
+    (@internal[struct_decl] $name:ident $pat_name: ident => $($inner:meta)* => $($field_name:ident : $field_type:ty),+) => {
+        ::paste::paste! {
+            #[derive(::async_graphql::SimpleObject, ::serde::Serialize, Debug, Clone)]
+            $(#[$inner])*
+            pub struct [<$name $pat_name GraphQL>] {
+                $($field_name: $field_type),+
+            }
+        }
+    };
+
+    (@internal[struct_decl] $name:ident $pat_name: ident => $($inner:meta)* =>) => {
+        ::paste::paste! {
+            #[derive(::async_graphql::SimpleObject, ::serde::Serialize, Debug, Clone)]
+            $(#[$inner])*
+            pub struct [<$name $pat_name GraphQL>] {
+                __empty: $crate::utils::graphql::Void
+            }
+        }
+    };
+
+    (@internal[args] $name:ident $pat_name: ident => $($field_name:ident),+) => {
+        ::paste::paste! { [<$name $pat_name GraphQL>] { $($field_name),+ } }
+    };
+
+    (@internal[args] $name:ident $pat_name: ident =>) => {
+        ::paste::paste! { [<$name $pat_name GraphQL>] { __empty: $crate::utils::graphql::Void } }
+    }
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash, Serialize, Deserialize)]
 pub struct Void;
 
 #[Scalar]

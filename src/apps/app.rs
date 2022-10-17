@@ -47,12 +47,12 @@ graphql_enum!(
         /// Volume that could be dropped without any real datal loss
         /// (e.g. cache or unimportant configuration files)
         #[derive(PartialEq, Eq, Hash)]
-        Disposable { internal_path: String },
+        Disposable,
 
         /// Internal volume used to store data which does not need to be modifiable
         /// by the end user (non-disposable)
         #[derive(PartialEq, Eq, Hash)]
-        Internal { internal_path: String },
+        Internal,
 
         /// External volume stored in an accessible filesystem
         #[derive(PartialEq, Eq, Hash)]
