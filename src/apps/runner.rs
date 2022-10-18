@@ -1,5 +1,11 @@
-use anyhow::Result;
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
+
+use anyhow::{Context, Result};
 use bollard::Docker;
+use futures::future::{join_all, try_join, try_join_all};
 
 use crate::docker::{self, ContainerCreationConfig, ContainerMount};
 
@@ -16,11 +22,39 @@ pub struct AppRunner<'a, 'b, 'c> {
 
 impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
     pub async fn is_partially_running(&self) -> Result<bool> {
-        todo!()
+        let containers = docker::list_containers(self.docker).await?;
+
+        Ok(containers
+            .into_iter()
+            .any(|container| container.app_id == self.app.id && container.status.running_like()))
     }
 
     pub async fn stop(&self) -> Result<()> {
-        todo!()
+        let containers = docker::list_containers(self.docker).await?;
+
+        let docker = Arc::new(self.docker.clone());
+
+        let tasks = containers
+            .into_iter()
+            .filter(|container| container.app_id == self.app.id)
+            .map(|container| {
+                let docker = Arc::clone(&docker);
+
+                async move {
+                    docker::stop_container(&docker, &container.docker_container_id)
+                        .await
+                        .with_context(|| {
+                            format!("Failed to stop container '{}'", container.container_name)
+                        })?;
+
+                    Ok::<(), anyhow::Error>(())
+                }
+            })
+            .collect::<Vec<_>>();
+
+        try_join_all(tasks).await?;
+
+        Ok(())
     }
 
     pub async fn create_containers(&self) -> Result<()> {
