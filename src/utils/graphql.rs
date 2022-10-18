@@ -11,9 +11,9 @@ pub fn format_err(err: Error) -> String {
 
 #[macro_export]
 macro_rules! graphql_enum {
-    ($(#[$outer:meta])* pub enum $name:ident { $($(#[$inner:meta])* $pat_name:ident $({ $($field_name:ident: $field_type: ty),* $(,)? })?),+ $(,)? }) => {
+    ($(#[$base:meta])* $(graphql_attr($(#[$outer:meta])*))? pub enum $name:ident { $($(#[$inner:meta])* $pat_name:ident $({ $($field_name:ident: $field_type: ty),* $(,)? })?),+ $(,)? }) => {
         #[derive(Debug, Clone)]
-        $(#[$outer])*
+        $(#[$base])*
         pub enum $name {
             $(
                 $pat_name $({
@@ -30,11 +30,19 @@ macro_rules! graphql_enum {
                     }),+
                 }
             }
+
+            pub fn encode_cloned(&self) -> ::paste::paste! { [<$name GraphQL>] } {
+                match self {
+                    $($name::$pat_name $({ $($field_name),+ })? => ::paste::paste! {
+                        [<$name GraphQL>]::$pat_name($crate::graphql_enum!(@internal[args_with_clone] $name $pat_name => $($($field_name),+)?))
+                    }),+
+                }
+            }
         }
 
         ::paste::paste! {
             #[derive(::async_graphql::Union, ::serde::Serialize, Debug, Clone)]
-            $(#[$outer])*
+            $($(#[$outer])*)?
             pub enum [<$name GraphQL>] {
                 $($pat_name(::paste::paste! { [<$name $pat_name GraphQL>] })),+
             }
@@ -95,6 +103,14 @@ macro_rules! graphql_enum {
     };
 
     (@internal[args] $name:ident $pat_name: ident =>) => {
+        ::paste::paste! { [<$name $pat_name GraphQL>] { __empty: $crate::utils::graphql::Void } }
+    };
+
+    (@internal[args_with_clone] $name:ident $pat_name: ident => $($field_name:ident),+) => {
+        ::paste::paste! { [<$name $pat_name GraphQL>] { $($field_name: $field_name.clone()),+ } }
+    };
+
+    (@internal[args_with_clone] $name:ident $pat_name: ident =>) => {
         ::paste::paste! { [<$name $pat_name GraphQL>] { __empty: $crate::utils::graphql::Void } }
     };
 
