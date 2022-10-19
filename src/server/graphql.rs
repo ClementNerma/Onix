@@ -6,8 +6,12 @@ use axum::{
     response::{self, IntoResponse},
     Extension,
 };
+use tokio::sync::MutexGuard;
 
-use super::{queries::QueryRoot, state::State};
+use super::{
+    queries::QueryRoot,
+    state::{State, WrappedState},
+};
 
 type AppSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 
@@ -15,17 +19,19 @@ pub async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) 
     schema.execute(req.into_inner()).await.into()
 }
 
-pub async fn graphiql(Extension(state): Extension<Arc<State>>) -> impl IntoResponse {
+pub async fn graphiql(Extension(state): Extension<WrappedState>) -> impl IntoResponse {
     response::Html(
         GraphiQLSource::build()
             // TODO: configure host IP
-            .endpoint(&format!("http://localhost:{}", state.port))
+            .endpoint(&format!("http://localhost:{}", state.lock().await.port))
             .finish(),
     )
 }
 
-pub fn get_state<'a>(context: &'a Context<'_>) -> &'a Arc<State> {
+pub async fn get_state<'a>(context: &'a Context<'_>) -> MutexGuard<'a, State> {
     context
-        .data::<Arc<State>>()
+        .data::<WrappedState>()
         .expect("Assertion error: GraphQL context does not have the expected type")
+        .lock()
+        .await
 }

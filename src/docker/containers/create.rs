@@ -19,10 +19,13 @@ pub async fn create_container(
         env,
         anon_volumes,
         mounts,
+        labels,
     } = config;
 
     let config = Config {
         image: Some(image.clone()),
+
+        labels: Some(labels),
 
         env: Some(
             env.iter()
@@ -78,6 +81,7 @@ pub struct ContainerCreationConfig {
     pub env: BTreeMap<String, String>,
     pub anon_volumes: Vec<String>,
     pub mounts: Vec<ContainerMount>,
+    pub labels: HashMap<String, String>,
 }
 
 pub struct ContainerMount {

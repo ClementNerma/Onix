@@ -18,6 +18,7 @@ os_pipe = "1.1.1"
 paste = "1.0.9"
 pomsky = "0.7.0"
 pomsky-macro = "0.7.0"
+rand = "0.8.5"
 regex = "1.6.0"
 serde = { version = "1.0.145", features = ["derive"] }
 time = { version = "0.3.15", features = ["local-offset", "serde"] }

@@ -3,6 +3,7 @@
 
 mod apps;
 mod cmd;
+mod data;
 mod docker;
 mod server;
 mod utils;
@@ -36,6 +37,9 @@ async fn inner_main(cmd: Cmd) -> Result<()> {
         address: cmd.address.unwrap_or_else(|| "127.0.0.1".into()),
         port: cmd.port,
         docker,
+
+        // TODO: store user data somewhere
+        user_data: None,
     };
 
     server::start(config).await

@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use super::app::{AppContainerIdentity, AppIdentity};
+use super::{app::AppIdentity, containers::AppContainerIdentity};
 
 pub struct AppRunnerConfig {
     pub data_dir: PathBuf,

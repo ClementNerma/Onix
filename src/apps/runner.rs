@@ -1,16 +1,23 @@
-use std::{cmp::Ordering, collections::HashSet, sync::Arc};
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use anyhow::{bail, Context, Result};
 use bollard::Docker;
 use futures::future::try_join_all;
 use log::info;
 
-use crate::docker::{self, ContainerCreationConfig, ContainerMount, ExistingContainerStatus};
-
-use super::{
-    app::{App, AppContainer, AppVolume},
-    env::AppRunnerEnvironment,
+use crate::{
+    apps::volumes::AppVolume,
+    docker::{
+        self, ContainerCreationConfig, ContainerMount, ExistingContainerStatus, APP_ID_LABEL,
+        APP_NAME_LABEL, CONTAINER_ID_LABEL, CONTAINER_NAME_LABEL,
+    },
 };
+
+use super::{app::App, containers::AppContainer, env::AppRunnerEnvironment};
 
 pub struct AppRunner<'a, 'b, 'c> {
     env: &'a AppRunnerEnvironment,
@@ -165,6 +172,11 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
     }
 
     fn generate_container_config(&self, container: &AppContainer) -> ContainerCreationConfig {
+        assert_eq!(
+            container.app.id, self.app.id,
+            "Assertion error: tried to generate a container's configuration for another app in runner"
+        );
+
         let mut anon_volumes = vec![];
         let mut mounts = vec![];
 
@@ -198,11 +210,17 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
         }
 
         ContainerCreationConfig {
-            name: container.name.clone(),
+            name: container.docker_container_name(),
             image: container.image.clone(),
             env: container.env_vars.clone(),
             anon_volumes,
             mounts,
+            labels: HashMap::from([
+                (APP_ID_LABEL.to_string(), container.app.id.to_string()),
+                (APP_NAME_LABEL.to_string(), container.app.name.clone()),
+                (CONTAINER_ID_LABEL.to_string(), container.id.to_string()),
+                (CONTAINER_NAME_LABEL.to_string(), container.name.clone()),
+            ]),
         }
     }
 

@@ -2,7 +2,7 @@ use anyhow::Error;
 use async_graphql::{InputValueError, InputValueResult, Scalar, ScalarType, Value};
 use serde::{Deserialize, Serialize};
 
-pub type Result<T> = std::result::Result<T, String>;
+pub type Result<T, E = String> = std::result::Result<T, E>;
 
 pub fn format_err(err: Error) -> String {
     // TODO: to improve

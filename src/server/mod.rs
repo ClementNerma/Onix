@@ -1,16 +1,18 @@
 mod graphql;
+mod mutations;
 mod queries;
 mod state;
 
 use std::sync::Arc;
 
 use anyhow::{anyhow, Context, Result};
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use axum::{extract::Extension, routing::get, Router, Server};
 use log::info;
 
 use crate::server::{
     graphql::{graphiql, graphql_handler},
+    mutations::MutationRoot,
     queries::QueryRoot,
     state::State,
 };
@@ -20,7 +22,7 @@ pub use self::state::StateConfig;
 pub async fn start(config: StateConfig) -> Result<()> {
     let state = Arc::new(State::new(config));
 
-    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(Arc::clone(&state))
         .finish();
 
