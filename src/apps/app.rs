@@ -18,7 +18,7 @@ use crate::{graphql_enum, utils::time::get_now};
 pub struct App {
     pub id: u64,
     pub name: String,
-    pub stash: Vec<AppContainer>,
+    pub containers: Vec<AppContainer>,
     created_on: OffsetDateTime,
 }
 
@@ -34,7 +34,7 @@ impl App {
         Ok(Self {
             id: hasher.finish(),
             name,
-            stash,
+            containers: stash,
             created_on: get_now(),
         })
     }
@@ -45,6 +45,12 @@ impl App {
             name: self.name.clone(),
             __private: PhantomData,
         }
+    }
+
+    pub fn get_container(&self, name: &str) -> Option<&AppContainer> {
+        self.containers
+            .iter()
+            .find(|container| container.name == name)
     }
 }
 

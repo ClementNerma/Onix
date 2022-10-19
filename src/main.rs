@@ -18,7 +18,7 @@ async fn main() {
     let cmd = Cmd::parse();
 
     env_logger::builder()
-        .format_target(false)
+        .format_module_path(false)
         .filter_level(cmd.logging_level.unwrap_or(LevelFilter::Info))
         .init();
 

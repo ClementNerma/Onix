@@ -1,11 +1,9 @@
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
+use std::{cmp::Ordering, sync::Arc};
 
 use anyhow::{Context, Result};
 use bollard::Docker;
 use futures::future::{join_all, try_join, try_join_all};
+use log::info;
 
 use crate::docker::{self, ContainerCreationConfig, ContainerMount};
 
@@ -58,14 +56,32 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
     }
 
     pub async fn create_containers(&self) -> Result<()> {
+        info!(
+            "Creating containers for application '{}' [{}]...",
+            self.app.name, self.app.id
+        );
+
         if self.is_partially_running().await? {
             self.stop().await?;
         }
 
-        for container in &self.app.stash {
+        let containers = self.sort_containers_by_deps();
+
+        for (i, container) in containers.iter().enumerate() {
+            info!(
+                "> Creating container {} / {}: '{}' [{}]...",
+                i + 1,
+                containers.len(),
+                container.name,
+                container.id
+            );
+
             docker::create_container(self.docker, self.generate_container_config(container))
-                .await?;
+                .await
+                .with_context(|| format!("Failed to start container '{}'", container.name))?;
         }
+
+        info!("> All containers were successfully created!");
 
         Ok(())
     }
@@ -110,5 +126,21 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             anon_volumes,
             mounts,
         }
+    }
+
+    fn sort_containers_by_deps(&self) -> Vec<&AppContainer> {
+        let mut refs: Vec<_> = self.app.containers.iter().collect();
+
+        refs.sort_by(|a, b| {
+            if a.depends_on.contains(&b.name) {
+                Ordering::Greater
+            } else if b.depends_on.contains(&a.name) {
+                Ordering::Less
+            } else {
+                a.name.cmp(&b.name)
+            }
+        });
+
+        refs
     }
 }
