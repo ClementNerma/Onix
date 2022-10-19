@@ -1,11 +1,11 @@
-use std::{cmp::Ordering, sync::Arc};
+use std::{cmp::Ordering, collections::HashSet, sync::Arc};
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use bollard::Docker;
-use futures::future::{join_all, try_join, try_join_all};
+use futures::future::try_join_all;
 use log::info;
 
-use crate::docker::{self, ContainerCreationConfig, ContainerMount};
+use crate::docker::{self, ContainerCreationConfig, ContainerMount, ExistingContainerStatus};
 
 use super::{
     app::{App, AppContainer, AppVolume},
@@ -19,12 +19,121 @@ pub struct AppRunner<'a, 'b, 'c> {
 }
 
 impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
-    pub async fn is_partially_running(&self) -> Result<bool> {
-        let containers = docker::list_containers(self.docker).await?;
+    pub async fn status(&self) -> Result<AppRunningStatus> {
+        let container_ids = self
+            .app
+            .containers
+            .iter()
+            .map(|container| container.id)
+            .collect::<HashSet<_>>();
 
-        Ok(containers
+        let existing = docker::list_containers(self.docker).await?;
+
+        let existing = existing
             .into_iter()
-            .any(|container| container.app_id == self.app.id && container.status.running_like()))
+            .filter(|existing| {
+                existing.app_id == self.app.id && container_ids.contains(&existing.container_id)
+            })
+            .collect::<Vec<_>>();
+
+        let existing_ids = existing
+            .iter()
+            .map(|existing| existing.container_id)
+            .collect::<HashSet<_>>();
+
+        let created_count = self
+            .app
+            .containers
+            .iter()
+            .filter(|container| existing_ids.contains(&container.id))
+            .count();
+
+        if created_count == 0 {
+            return Ok(AppRunningStatus::NotCreated);
+        }
+
+        if created_count < self.app.containers.len() {
+            return Ok(AppRunningStatus::PartiallyCreated);
+        }
+
+        let statuses = existing
+            .iter()
+            .map(|existing| existing.status)
+            .collect::<Vec<_>>();
+
+        if statuses.contains(&ExistingContainerStatus::Dead) {
+            return Ok(AppRunningStatus::Zombie);
+        }
+
+        if statuses.contains(&ExistingContainerStatus::Paused)
+            || statuses.contains(&ExistingContainerStatus::Removing)
+            || statuses.contains(&ExistingContainerStatus::Restarting)
+        {
+            return Ok(AppRunningStatus::Intermediary);
+        }
+
+        if statuses
+            .iter()
+            .all(|status| *status == ExistingContainerStatus::Exited)
+        {
+            return Ok(AppRunningStatus::Stopped);
+        }
+
+        if statuses.contains(&ExistingContainerStatus::Exited) {
+            return Ok(AppRunningStatus::PartiallyRunning);
+        }
+
+        assert!(
+            statuses
+                .iter()
+                .all(|status| *status == ExistingContainerStatus::Running),
+            "Assertion error: invalid predicates on existing container status"
+        );
+
+        Ok(AppRunningStatus::FullyRunning)
+    }
+
+    pub async fn create_containers(&self) -> Result<()> {
+        info!(
+            "Creating containers for application '{}' [{}]...",
+            self.app.name, self.app.id
+        );
+
+        match self.status().await? {
+            AppRunningStatus::NotCreated => {}
+            AppRunningStatus::PartiallyCreated => {
+                bail!("Some of the application's containers is/are already created")
+            }
+            AppRunningStatus::Zombie => bail!("At least one container is in zombie mode"),
+            AppRunningStatus::Intermediary => {
+                bail!("At least one container is in an intermediary state")
+            }
+            AppRunningStatus::Stopped
+            | AppRunningStatus::PartiallyRunning
+            | AppRunningStatus::FullyRunning => {
+                bail!("Application's containers already exist")
+            }
+        }
+
+        let containers = self.sort_containers_by_deps();
+
+        for (i, container) in containers.iter().enumerate() {
+            info!(
+                "> Creating container {} / {}: '{}' [{}]...",
+                i + 1,
+                containers.len(),
+                container.name,
+                container.id
+            );
+
+            docker::create_container(self.docker, self.generate_container_config(container))
+                .await
+                .with_context(|| format!("Failed to start container '{}'", container.name))?;
+        }
+
+        info!("> All containers were successfully created!");
+
+        Ok(())
     }
 
     pub async fn stop(&self) -> Result<()> {
@@ -51,37 +160,6 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             .collect::<Vec<_>>();
 
         try_join_all(tasks).await?;
-
-        Ok(())
-    }
-
-    pub async fn create_containers(&self) -> Result<()> {
-        info!(
-            "Creating containers for application '{}' [{}]...",
-            self.app.name, self.app.id
-        );
-
-        if self.is_partially_running().await? {
-            self.stop().await?;
-        }
-
-        let containers = self.sort_containers_by_deps();
-
-        for (i, container) in containers.iter().enumerate() {
-            info!(
-                "> Creating container {} / {}: '{}' [{}]...",
-                i + 1,
-                containers.len(),
-                container.name,
-                container.id
-            );
-
-            docker::create_container(self.docker, self.generate_container_config(container))
-                .await
-                .with_context(|| format!("Failed to start container '{}'", container.name))?;
-        }
-
-        info!("> All containers were successfully created!");
 
         Ok(())
     }
@@ -143,4 +221,28 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
 
         refs
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum AppRunningStatus {
+    /// No container was created yet for this application
+    NotCreated,
+
+    /// Some containers (but not all) were created
+    PartiallyCreated,
+
+    /// All containers are created but at least one container is in a zombie state (e.g. 'dead')
+    Zombie,
+
+    /// All containers are created with no zombie but at least one container is in an intermediary state (e.g. 'restarting')
+    Intermediary,
+
+    /// All containers are created but stopped (exited)
+    Stopped,
+
+    /// At least one container is running and one is not, with no zombie or intermediary container
+    PartiallyRunning,
+
+    /// All containers are running
+    FullyRunning,
 }

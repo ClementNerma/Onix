@@ -1,9 +1,14 @@
+use std::collections::BTreeMap;
+
 use bollard::Docker;
+
+use crate::apps::App;
 
 pub struct State {
     pub port: u16,
     pub address: String,
     pub docker: Docker,
+    pub apps: BTreeMap<String, App>,
 }
 
 impl State {
@@ -18,6 +23,7 @@ impl State {
             port,
             address,
             docker,
+            apps: BTreeMap::new(),
         }
     }
 }

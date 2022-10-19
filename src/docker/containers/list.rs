@@ -83,6 +83,7 @@ pub struct ExistingContainer {
     pub status: ExistingContainerStatus,
 }
 
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum ExistingContainerStatus {
     Created,
     Restarting,
