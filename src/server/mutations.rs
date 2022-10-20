@@ -21,6 +21,8 @@ impl MutationRoot {
 
         let app = App::new(input).context("Failed to create the application")?;
 
+        apps.push(app.clone());
+
         Ok(app)
     }
 
