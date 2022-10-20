@@ -14,7 +14,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-use crate::{docker::NAME_PREFIX, utils::time::get_now};
+use crate::{declare_id_type, docker::NAME_PREFIX, utils::time::get_now};
 
 use super::{
     app::AppIdentity,
@@ -148,28 +148,4 @@ pub struct AppContainerIdentity {
     __private: PhantomData<()>,
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ContainerId(pub u64);
-
-#[Scalar]
-impl ScalarType for ContainerId {
-    fn parse(value: Value) -> InputValueResult<Self> {
-        if let Value::String(maybe_num) = value {
-            Ok(Self(maybe_num.parse().map_err(|_| {
-                InputValueError::custom("ID should be a number")
-            })?))
-        } else {
-            Err(InputValueError::expected_type(value))
-        }
-    }
-
-    fn to_value(&self) -> Value {
-        Value::String(self.0.to_string())
-    }
-}
-
-impl Display for ContainerId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
+declare_id_type!(ContainerId);

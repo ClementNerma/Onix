@@ -146,6 +146,59 @@ macro_rules! graphql_enum {
     };
 }
 
+#[macro_export]
+macro_rules! define_scalar_string {
+    ($typename: ident) => {
+        #[::async_graphql::Scalar]
+        impl ::async_graphql::ScalarType for $typename {
+            fn parse(value: ::async_graphql::Value) -> ::async_graphql::InputValueResult<Self> {
+                if let ::async_graphql::Value::String(value) = value {
+                    Ok(Self::decode(&value)?)
+                } else {
+                    Err(::async_graphql::InputValueError::expected_type(value))
+                }
+            }
+
+            fn to_value(&self) -> ::async_graphql::Value {
+                ::async_graphql::Value::String(self.encode())
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! declare_id_type {
+    ($typename: ident) => {
+        #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+        pub struct $typename(pub u64);
+
+        impl $typename {
+            #[allow(dead_code)]
+            pub fn encode(&self) -> String {
+                format!("{:x}", self.0)
+            }
+
+            #[allow(dead_code)]
+            pub fn decode(input: &str) -> Result<Self, ::std::num::ParseIntError> {
+                let id = u64::from_str_radix(input, 16)?;
+                Ok(Self(id))
+            }
+        }
+
+        impl ::std::fmt::Display for $typename {
+             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                write!(f, "{} ({})", self.0, self.encode())
+            }
+        }
+
+        $crate::define_scalar_string! { $typename }
+    };
+
+    ($($typename: ident),+) => {
+        $($crate::define_id_type!($typename);)+
+    }
+}
+
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash, Serialize, Deserialize)]
 pub struct Void;
 

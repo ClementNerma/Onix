@@ -12,7 +12,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-use crate::utils::time::get_now;
+use crate::{declare_id_type, utils::time::get_now};
 
 use super::{
     containers::{AppContainer, AppContainerCreationInput},
@@ -112,31 +112,7 @@ impl App {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct AppId(pub u64);
-
-#[Scalar]
-impl ScalarType for AppId {
-    fn parse(value: Value) -> InputValueResult<Self> {
-        if let Value::String(maybe_num) = value {
-            Ok(Self(maybe_num.parse().map_err(|_| {
-                InputValueError::custom("ID should be a number")
-            })?))
-        } else {
-            Err(InputValueError::expected_type(value))
-        }
-    }
-
-    fn to_value(&self) -> Value {
-        Value::String(self.0.to_string())
-    }
-}
-
-impl Display for AppId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
+declare_id_type!(AppId);
 
 #[derive(SimpleObject, InputObject, Serialize, Deserialize, Hash, Clone, PartialEq, Eq)]
 #[graphql(input_name = "AppIdentityInput")]
