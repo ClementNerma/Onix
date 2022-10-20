@@ -60,7 +60,7 @@ impl AppContainer {
             bail!("Please provide a non-empty name for this container")
         }
 
-        if NAME_VALIDATOR.is_match(&input.name) {
+        if !NAME_VALIDATOR.is_match(&input.name) {
             bail!(
                 "Invalid container name provided, please follow regex: {}",
                 NAME_VALIDATOR.as_str()
