@@ -15,11 +15,10 @@ impl MutationRoot {
         let apps = &mut get_state(ctx).await.user_data.apps;
 
         if apps.iter().any(|app| app.name == input.name) {
-            return Err("An application already exists with the provided name".into());
+            Err("An application already exists with the provided name")?;
         }
 
-        let app =
-            App::new(input).map_err(|err| format!("Failed to create the application: {err}"))?;
+        let app = App::new(input).context("Failed to create the application")?;
 
         Ok(app)
     }
