@@ -1,7 +1,7 @@
 use async_graphql::{Context, Object};
 
 use crate::{
-    apps::{App, AppRunningStatus},
+    apps::{App, AppId, AppRunningStatus},
     docker,
     utils::graphql::{CustomGraphQLError, Result},
 };
@@ -26,21 +26,21 @@ impl QueryRoot {
         get_state(ctx).await.user_data.apps.clone()
     }
 
-    async fn app(&self, ctx: &Context<'_>, app_id: u64) -> Result<App, &'static str> {
+    async fn app(&self, ctx: &Context<'_>, id: AppId) -> Result<App, &'static str> {
         get_state(ctx)
             .await
             .user_data
             .apps
             .iter()
-            .find(|app| app.id == app_id)
+            .find(|app| app.id == id)
             .cloned()
             .ok_or("Provided application ID was not found")
     }
 
-    async fn app_status(&self, ctx: &Context<'_>, app_id: u64) -> Result<AppRunningStatus> {
+    async fn app_status(&self, ctx: &Context<'_>, id: AppId) -> Result<AppRunningStatus> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, app_id).await?;
+        let runner = get_runner_for(&state, id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
     }

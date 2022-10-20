@@ -1,7 +1,13 @@
-use std::{collections::HashSet, marker::PhantomData};
+use std::{
+    collections::HashSet,
+    fmt::{Display, Formatter},
+    marker::PhantomData,
+};
 
 use anyhow::{bail, Context, Result};
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::{
+    InputObject, InputValueError, InputValueResult, Scalar, ScalarType, SimpleObject, Value,
+};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -21,7 +27,7 @@ pub struct AppCreationInput {
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
 pub struct App {
-    pub id: u64,
+    pub id: AppId,
     pub name: String,
     pub containers: Vec<AppContainer>,
     created_on: OffsetDateTime,
@@ -40,7 +46,7 @@ impl App {
         let AppCreationInput { name, containers } = input;
 
         let mut app = Self {
-            id: rand::thread_rng().gen(),
+            id: AppId(rand::thread_rng().gen()),
             name,
             containers: vec![],
             created_on: get_now(),
@@ -106,12 +112,36 @@ impl App {
     }
 }
 
-#[derive(
-    SimpleObject, InputObject, Serialize, Deserialize, Hash, Clone, PartialEq, Eq, PartialOrd, Ord,
-)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppId(pub u64);
+
+#[Scalar]
+impl ScalarType for AppId {
+    fn parse(value: Value) -> InputValueResult<Self> {
+        if let Value::String(maybe_num) = value {
+            Ok(Self(maybe_num.parse().map_err(|_| {
+                InputValueError::custom("ID should be a number")
+            })?))
+        } else {
+            Err(InputValueError::expected_type(value))
+        }
+    }
+
+    fn to_value(&self) -> Value {
+        Value::String(self.0.to_string())
+    }
+}
+
+impl Display for AppId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+#[derive(SimpleObject, InputObject, Serialize, Deserialize, Hash, Clone, PartialEq, Eq)]
 #[graphql(input_name = "AppIdentityInput")]
 pub struct AppIdentity {
-    pub id: u64,
+    pub id: AppId,
     pub name: String,
 
     #[graphql(skip)]

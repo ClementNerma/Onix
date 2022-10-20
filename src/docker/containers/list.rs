@@ -1,8 +1,9 @@
 use anyhow::{bail, Context, Result};
 use bollard::{service::ContainerSummary, Docker};
 
-use crate::docker::{
-    APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL, CONTAINER_NAME_LABEL, NAME_PREFIX,
+use crate::{
+    apps::{AppId, ContainerId},
+    docker::{APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL, CONTAINER_NAME_LABEL, NAME_PREFIX},
 };
 
 pub async fn list_containers(docker: &Docker) -> Result<Vec<ExistingContainer>> {
@@ -66,9 +67,9 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
 
     Ok(Some(ExistingContainer {
         docker_container_id: summary.id.context("Missing ID")?,
-        app_id,
+        app_id: AppId(app_id),
         app_name,
-        container_id,
+        container_id: ContainerId(container_id),
         container_name,
         status,
     }))
@@ -76,9 +77,9 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
 
 pub struct ExistingContainer {
     pub docker_container_id: String,
-    pub app_id: u64,
+    pub app_id: AppId,
     pub app_name: String,
-    pub container_id: u64,
+    pub container_id: ContainerId,
     pub container_name: String,
     pub status: ExistingContainerStatus,
 }

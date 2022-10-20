@@ -4,7 +4,7 @@ use bollard::Docker;
 use tokio::sync::{Mutex, MutexGuard};
 
 use crate::{
-    apps::{AppRunner, AppRunnerConfig, AppRunnerEnvironment},
+    apps::{AppId, AppRunner, AppRunnerConfig, AppRunnerEnvironment},
     data::UserData,
     utils::graphql::Result,
 };
@@ -63,12 +63,12 @@ pub struct StateConfig {
     pub runner_config: AppRunnerConfig,
 }
 
-pub async fn get_runner_for(state: &State, app_id: u64) -> Result<AppRunner> {
+pub async fn get_runner_for(state: &State, id: AppId) -> Result<AppRunner> {
     let app = state
         .user_data
         .apps
         .iter()
-        .find(|app| app.id == app_id)
+        .find(|app| app.id == id)
         .ok_or("Provided application ID was not found")?;
 
     Ok(AppRunner::new(&state.docker, &state.runner_env, app))

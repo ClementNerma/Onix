@@ -2,7 +2,7 @@ use anyhow::Context as _;
 use async_graphql::{Context, Object};
 
 use crate::{
-    apps::{App, AppCreationInput},
+    apps::{App, AppCreationInput, AppId},
     utils::graphql::{Result, Void},
 };
 
@@ -26,18 +26,18 @@ impl MutationRoot {
         Ok(app)
     }
 
-    async fn start_app(&self, ctx: &Context<'_>, app_id: u64) -> Result<Void> {
+    async fn start_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, app_id).await?;
+        let runner = get_runner_for(&state, id).await?;
 
         runner.start().await.map(|()| Void).map_err(Into::into)
     }
 
-    async fn stop_app(&self, ctx: &Context<'_>, app_id: u64) -> Result<Void> {
+    async fn stop_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, app_id).await?;
+        let runner = get_runner_for(&state, id).await?;
 
         runner.stop().await.map(|()| Void).map_err(Into::into)
     }

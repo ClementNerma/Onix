@@ -1,11 +1,15 @@
 use std::{
     collections::{BTreeMap, HashSet},
+    fmt::{Display, Formatter},
     hash::Hash,
     marker::PhantomData,
 };
 
 use anyhow::{bail, Result};
-use async_graphql::{ComplexObject, InputObject, SimpleObject};
+use async_graphql::{
+    ComplexObject, InputObject, InputValueError, InputValueResult, Scalar, ScalarType,
+    SimpleObject, Value,
+};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -31,7 +35,7 @@ pub struct AppContainerCreationInput {
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
 pub struct AppContainer {
     pub app: AppIdentity,
-    pub id: u64,
+    pub id: ContainerId,
     pub name: String,
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
@@ -106,7 +110,7 @@ impl AppContainer {
 
         Ok(Self {
             app,
-            id: rand::thread_rng().gen(),
+            id: ContainerId(rand::thread_rng().gen()),
             name,
             image,
             env_vars,
@@ -134,12 +138,38 @@ impl AppContainer {
     }
 }
 
-#[derive(SimpleObject, Serialize, Hash, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(SimpleObject, Serialize, Hash, Clone, PartialEq, Eq)]
 pub struct AppContainerIdentity {
-    pub id: u64,
+    pub id: ContainerId,
     pub name: String,
     pub app: AppIdentity,
 
     #[graphql(skip)]
     __private: PhantomData<()>,
+}
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ContainerId(pub u64);
+
+#[Scalar]
+impl ScalarType for ContainerId {
+    fn parse(value: Value) -> InputValueResult<Self> {
+        if let Value::String(maybe_num) = value {
+            Ok(Self(maybe_num.parse().map_err(|_| {
+                InputValueError::custom("ID should be a number")
+            })?))
+        } else {
+            Err(InputValueError::expected_type(value))
+        }
+    }
+
+    fn to_value(&self) -> Value {
+        Value::String(self.0.to_string())
+    }
+}
+
+impl Display for ContainerId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }
