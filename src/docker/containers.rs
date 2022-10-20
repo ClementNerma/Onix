@@ -130,8 +130,13 @@ pub struct ContainerMount {
 }
 #[derive(Debug)]
 pub enum ContainerRestartPolicy {
+    #[allow(dead_code)]
     None,
+
+    #[allow(dead_code)]
     UnlessStopped,
+
+    #[allow(dead_code)]
     Always,
 }
 
