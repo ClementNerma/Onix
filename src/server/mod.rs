@@ -1,4 +1,5 @@
 mod graphql;
+mod logger;
 mod mutations;
 mod queries;
 mod state;
@@ -12,6 +13,7 @@ pub use state::StateConfig;
 
 use crate::server::{
     graphql::{graphiql, graphql_handler, AppSchema},
+    logger::Logger,
     mutations::MutationRoot,
     queries::QueryRoot,
     state::WrappedState,
@@ -21,6 +23,7 @@ pub async fn start(config: StateConfig) -> Result<()> {
     let state = WrappedState::new(config);
 
     let schema = AppSchema::build(QueryRoot, MutationRoot, EmptySubscription)
+        .extension(Logger)
         .data(state.clone())
         .finish();
 

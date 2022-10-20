@@ -7,6 +7,7 @@ edition = "2021"
 anyhow = "1.0.65"
 async-graphql = { version = "4.0.15", default-features = false, features = ["time", "log"] }
 async-graphql-axum = "4.0.15"
+async-trait = "0.1.58"
 axum = "0.5.16"
 bollard = "0.13.0"
 clap = { version = "4.0.15", features = ["derive"] }
