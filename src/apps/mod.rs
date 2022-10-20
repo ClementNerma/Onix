@@ -5,6 +5,8 @@ mod runner;
 mod volumes;
 
 pub use app::{App, AppCreationInput};
+pub use env::{AppRunnerConfig, AppRunnerEnvironment};
+pub use runner::{AppRunner, AppRunningStatus};
 
 use once_cell::sync::Lazy;
 use pomsky_macro::pomsky;

@@ -8,11 +8,14 @@ mod docker;
 mod server;
 mod utils;
 
-use self::{cmd::Cmd, server::StateConfig};
+use self::cmd::Cmd;
 use anyhow::{Context, Result};
+use apps::AppRunnerConfig;
 use bollard::Docker;
 use clap::Parser;
+use data::UserData;
 use log::{info, LevelFilter};
+use server::StateConfig;
 
 #[tokio::main]
 async fn main() {
@@ -40,6 +43,13 @@ async fn inner_main(cmd: Cmd) -> Result<()> {
 
         // TODO: store user data somewhere
         user_data: None,
+
+        // TODO: configurable directories
+        runner_config: AppRunnerConfig {
+            data_dir: dirs::data_local_dir()
+                .context("Failed to obtain path to local data directory")?
+                .join(env!("CARGO_PKG_NAME")),
+        },
     };
 
     server::start(config).await

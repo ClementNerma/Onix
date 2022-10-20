@@ -11,9 +11,9 @@ pub struct AppRunnerEnvironment {
     pub(super) apps_dir: PathBuf,
 }
 
-impl From<AppRunnerConfig> for AppRunnerEnvironment {
-    fn from(config: AppRunnerConfig) -> AppRunnerEnvironment {
-        #[forbid(unused_variables)]
+impl AppRunnerEnvironment {
+    pub fn new(config: AppRunnerConfig) -> Self {
+        #[deny(unused_variables)]
         let AppRunnerConfig { data_dir } = config;
 
         Self {
@@ -22,9 +22,7 @@ impl From<AppRunnerConfig> for AppRunnerEnvironment {
             data_dir,
         }
     }
-}
 
-impl AppRunnerEnvironment {
     pub fn app_dir(&self, app: &AppIdentity) -> PathBuf {
         self.apps_dir.join(&format!("{}-{}", app.name, app.id))
     }

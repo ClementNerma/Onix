@@ -5,6 +5,7 @@ use std::{
 };
 
 use anyhow::{bail, Context, Result};
+use async_graphql::Enum;
 use bollard::Docker;
 use futures::future::try_join_all;
 use log::info;
@@ -21,12 +22,16 @@ use crate::{
 use super::{app::App, containers::AppContainer, env::AppRunnerEnvironment};
 
 pub struct AppRunner<'a, 'b, 'c> {
-    env: &'a AppRunnerEnvironment,
-    app: &'b App,
-    docker: &'c Docker,
+    docker: &'a Docker,
+    env: &'b AppRunnerEnvironment,
+    app: &'c App,
 }
 
 impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
+    pub fn new(docker: &'a Docker, env: &'b AppRunnerEnvironment, app: &'c App) -> Self {
+        Self { docker, env, app }
+    }
+
     pub async fn status(&self) -> Result<AppRunningStatus> {
         let container_ids = self
             .app
@@ -278,7 +283,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Enum, Clone, Copy, PartialEq, Eq)]
 pub enum AppRunningStatus {
     /// No container was created yet for this application
     NotCreated,

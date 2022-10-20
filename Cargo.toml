@@ -10,6 +10,7 @@ async-graphql-axum = "4.0.15"
 axum = "0.5.16"
 bollard = "0.13.0"
 clap = { version = "4.0.15", features = ["derive"] }
+dirs = "4.0.0"
 env_logger = "0.9.1"
 futures = "0.3.24"
 log = "0.4.17"

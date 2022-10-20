@@ -1,11 +1,15 @@
+use anyhow::Context as _;
 use async_graphql::{Context, Object};
 
 use crate::{
-    apps::{App, AppCreationInput},
-    utils::graphql::Result,
+    apps::{App, AppCreationInput, AppRunner, AppRunningStatus},
+    utils::graphql::{CustomGraphQLError, Result, Void},
 };
 
-use super::graphql::get_state;
+use super::{
+    graphql::get_state,
+    state::{get_runner_for, State},
+};
 
 pub struct MutationRoot;
 
@@ -21,5 +25,21 @@ impl MutationRoot {
         let app = App::new(input).context("Failed to create the application")?;
 
         Ok(app)
+    }
+
+    async fn start_app(&self, ctx: &Context<'_>, app_id: u64) -> Result<Void> {
+        let state = &get_state(ctx).await;
+
+        let runner = get_runner_for(&state, app_id).await?;
+
+        runner.start().await.map(|()| Void).map_err(Into::into)
+    }
+
+    async fn stop_app(&self, ctx: &Context<'_>, app_id: u64) -> Result<Void> {
+        let state = &get_state(ctx).await;
+
+        let runner = get_runner_for(&state, app_id).await?;
+
+        runner.stop().await.map(|()| Void).map_err(Into::into)
     }
 }

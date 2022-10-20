@@ -10,14 +10,14 @@ use async_graphql::{EmptySubscription, Schema};
 use axum::{extract::Extension, routing::get, Router, Server};
 use log::info;
 
+pub use state::StateConfig;
+
 use crate::server::{
     graphql::{graphiql, graphql_handler},
     mutations::MutationRoot,
     queries::QueryRoot,
     state::State,
 };
-
-pub use self::state::StateConfig;
 
 pub async fn start(config: StateConfig) -> Result<()> {
     let state = Arc::new(State::new(config));
