@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use bollard::{
     container::{Config, CreateContainerOptions},
     models::Mount,
-    service::{ContainerCreateResponse, HostConfig},
+    service::{ContainerCreateResponse, HostConfig, RestartPolicy, RestartPolicyNameEnum},
     Docker,
 };
 
@@ -20,6 +20,7 @@ pub async fn create_container(
         anon_volumes,
         mounts,
         labels,
+        restart_policy,
     } = config;
 
     let config = Config {
@@ -45,6 +46,15 @@ pub async fn create_container(
         ),
 
         host_config: Some(HostConfig {
+            restart_policy: Some(RestartPolicy {
+                name: Some(match restart_policy {
+                    ContainerRestartPolicy::None => RestartPolicyNameEnum::NO,
+                    ContainerRestartPolicy::UnlessStopped => RestartPolicyNameEnum::UNLESS_STOPPED,
+                    ContainerRestartPolicy::Always => RestartPolicyNameEnum::ALWAYS,
+                }),
+                maximum_retry_count: None,
+            }),
+
             mounts: Some(
                 mounts
                     .into_iter()
@@ -82,10 +92,17 @@ pub struct ContainerCreationConfig {
     pub anon_volumes: Vec<String>,
     pub mounts: Vec<ContainerMount>,
     pub labels: HashMap<String, String>,
+    pub restart_policy: ContainerRestartPolicy,
 }
 
 pub struct ContainerMount {
     pub in_host: String,
     pub in_container: String,
     pub readonly: bool,
+}
+
+pub enum ContainerRestartPolicy {
+    None,
+    UnlessStopped,
+    Always,
 }

@@ -12,8 +12,9 @@ use log::info;
 use crate::{
     apps::volumes::AppVolume,
     docker::{
-        self, ContainerCreationConfig, ContainerMount, ExistingContainerStatus, APP_ID_LABEL,
-        APP_NAME_LABEL, CONTAINER_ID_LABEL, CONTAINER_NAME_LABEL,
+        self, ContainerCreationConfig, ContainerMount, ContainerRestartPolicy,
+        ExistingContainerStatus, APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL,
+        CONTAINER_NAME_LABEL,
     },
 };
 
@@ -135,10 +136,48 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
 
             docker::create_container(self.docker, self.generate_container_config(container))
                 .await
-                .with_context(|| format!("Failed to start container '{}'", container.name))?;
+                .with_context(|| format!("Failed to create container '{}'", container.name))?;
         }
 
         info!("> All containers were successfully created!");
+
+        Ok(())
+    }
+
+    pub async fn start(&self) -> Result<()> {
+        match self.status().await? {
+            AppRunningStatus::NotCreated => {}
+            AppRunningStatus::PartiallyCreated => {
+                bail!("Some of the application's containers is/are already created")
+            }
+            AppRunningStatus::Zombie => bail!("At least one container is in zombie mode"),
+            AppRunningStatus::Intermediary => {
+                bail!("At least one container is in an intermediary state")
+            }
+            AppRunningStatus::Stopped
+            | AppRunningStatus::PartiallyRunning
+            | AppRunningStatus::FullyRunning => {
+                bail!("Application's containers already exist")
+            }
+        }
+
+        let containers = self.sort_containers_by_deps();
+
+        for (i, container) in containers.iter().enumerate() {
+            info!(
+                "> Starting container {} / {}: '{}' [{}]...",
+                i + 1,
+                containers.len(),
+                container.name,
+                container.id
+            );
+
+            docker::start_container(self.docker, &container.docker_container_name())
+                .await
+                .with_context(|| format!("Failed to start container '{}'", container.name))?;
+        }
+
+        info!("> All containers were successfully started!");
 
         Ok(())
     }
@@ -221,6 +260,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
                 (CONTAINER_ID_LABEL.to_string(), container.id.to_string()),
                 (CONTAINER_NAME_LABEL.to_string(), container.name.clone()),
             ]),
+            restart_policy: ContainerRestartPolicy::UnlessStopped,
         }
     }
 
