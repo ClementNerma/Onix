@@ -26,6 +26,18 @@ impl MutationRoot {
         Ok(app)
     }
 
+    async fn create_app_containers(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
+        let state = &get_state(ctx).await;
+
+        let runner = get_runner_for(&state, id).await?;
+
+        runner
+            .create_containers()
+            .await
+            .map(Into::into)
+            .map_err(Into::into)
+    }
+
     async fn start_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
