@@ -69,10 +69,12 @@ macro_rules! graphql_enum {
             }
 
             impl [<$name GraphQL>] {
+                #[allow(dead_code)]
                 pub fn decode(self) -> $name {
                     self.into()
                 }
 
+                #[allow(dead_code)]
                 pub fn decode_cloned(&self) -> $name {
                     self.clone().into()
                 }
