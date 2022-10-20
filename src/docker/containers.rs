@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use anyhow::{bail, Context, Result};
 use bollard::{
-    container::{Config, CreateContainerOptions},
+    container::{Config, CreateContainerOptions, ListContainersOptions},
     image::CreateImageOptions,
     models::Mount,
     service::{
@@ -26,7 +26,7 @@ pub async fn create_container(
     docker
         .create_image(
             Some(CreateImageOptions {
-                from_image: config.name.as_str(),
+                from_image: config.image.as_str(),
                 ..Default::default()
             }),
             None,
@@ -140,7 +140,10 @@ pub enum ContainerRestartPolicy {
 
 pub async fn list_containers(docker: &Docker) -> Result<Vec<ExistingContainer>> {
     let containers = docker
-        .list_containers::<String>(None)
+        .list_containers::<String>(Some(ListContainersOptions {
+            all: true,
+            ..Default::default()
+        }))
         .await
         .context("Failed to fetch the list of existing Docker containers")?;
 
@@ -167,7 +170,7 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
         return Ok(None);
     }
 
-    if !names[0].starts_with(NAME_PREFIX) {
+    if !names[0].starts_with(NAME_PREFIX) && !names[0].starts_with(&format!("/{NAME_PREFIX}")) {
         return Ok(None);
     }
 
@@ -175,9 +178,9 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
 
     let app_id = labels
         .get(APP_ID_LABEL)
-        .context("Missing label for application ID")?
-        .parse()
-        .context("Failed to parse application ID")?;
+        .context("Missing label for application ID")?;
+
+    let app_id = AppId::decode(app_id).context("Failed to parse application ID")?;
 
     let app_name = labels
         .get(APP_NAME_LABEL)
@@ -186,9 +189,10 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
 
     let container_id = labels
         .get(CONTAINER_ID_LABEL)
-        .context("Missing label for container ID")?
-        .parse()
-        .context("Failed to parse container ID")?;
+        .context("Missing label for container ID")?;
+
+    let container_id =
+        AppContainerId::decode(container_id).context("Failed to parse container ID")?;
 
     let container_name = labels
         .get(CONTAINER_NAME_LABEL)
@@ -199,9 +203,9 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
 
     Ok(Some(ExistingContainer {
         docker_container_id: summary.id.context("Missing ID")?,
-        app_id: AppId(app_id),
+        app_id,
         app_name,
-        container_id: AppContainerId(container_id),
+        container_id,
         container_name,
         status,
     }))

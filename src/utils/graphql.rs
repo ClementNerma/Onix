@@ -159,12 +159,12 @@ macro_rules! declare_id_type {
             }
 
             #[allow(dead_code)]
-            pub fn decode(input: &str) -> Result<Self, String> {
+            pub fn decode(input: &str) -> ::anyhow::Result<Self> {
                 let id = ::base62::decode(input)
-                    .map_err(|err| format!("Failed to parse base 62 content: {err}"))?;
+                    .map_err(|err| ::anyhow::anyhow!("Failed to parse base 62 content: {err}"))?;
 
                 let id = u64::try_from(id)
-                    .map_err(|_| format!("Number is too big to find into 64 bits"))?;
+                    .map_err(|_| ::anyhow::anyhow!("Number is too big to find into 64 bits"))?;
 
                 Ok(Self(id))
             }

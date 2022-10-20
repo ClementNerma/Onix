@@ -85,10 +85,10 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             return Ok(AppRunningStatus::Intermediary);
         }
 
-        if statuses
-            .iter()
-            .all(|status| *status == ExistingContainerStatus::Exited)
-        {
+        if statuses.iter().all(|status| {
+            *status == ExistingContainerStatus::Created
+                || *status == ExistingContainerStatus::Exited
+        }) {
             return Ok(AppRunningStatus::Stopped);
         }
 
