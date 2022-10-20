@@ -107,6 +107,8 @@ pub async fn create_container(
         ..Default::default()
     };
 
+    info!("==> Creating container '{name}'...");
+
     docker
         .create_container(Some(CreateContainerOptions { name }), config)
         .await
