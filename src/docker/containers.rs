@@ -10,7 +10,7 @@ use bollard::{
     },
     Docker,
 };
-use futures::{StreamExt, TryStreamExt};
+use futures::TryStreamExt;
 use log::info;
 
 pub async fn create_container(
@@ -31,13 +31,6 @@ pub async fn create_container(
             None,
             None,
         )
-        .inspect(|val| {
-            if let Ok(val) = val {
-                if let Some(progress) = &val.progress {
-                    info!("==> Pulling progress: {progress}");
-                }
-            }
-        })
         .try_collect::<Vec<_>>()
         .await
         .with_context(|| {
