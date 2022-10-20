@@ -1,12 +1,33 @@
-use anyhow::Error;
 use async_graphql::{InputValueError, InputValueResult, Scalar, ScalarType, Value};
 use serde::{Deserialize, Serialize};
 
-pub type Result<T, E = String> = std::result::Result<T, E>;
+pub struct CustomGraphQLError(pub String);
 
-pub fn format_err(err: Error) -> String {
-    // TODO: to improve
-    format!("{err:?}")
+pub type Result<T, E = CustomGraphQLError> = std::result::Result<T, E>;
+
+impl From<&str> for CustomGraphQLError {
+    fn from(str: &str) -> Self {
+        Self(str.to_string())
+    }
+}
+
+impl From<String> for CustomGraphQLError {
+    fn from(str: String) -> Self {
+        Self(str)
+    }
+}
+
+impl From<anyhow::Error> for CustomGraphQLError {
+    fn from(err: anyhow::Error) -> Self {
+        // TODO: to improve
+        Self(format!("{err:?}"))
+    }
+}
+
+impl Into<async_graphql::Error> for CustomGraphQLError {
+    fn into(self) -> async_graphql::Error {
+        async_graphql::Error::new(self.0)
+    }
 }
 
 #[macro_export]

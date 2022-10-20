@@ -1,10 +1,6 @@
 use async_graphql::{Context, Object};
 
-use crate::{
-    apps::App,
-    docker,
-    utils::graphql::{format_err, Result},
-};
+use crate::{apps::App, docker, utils::graphql::Result};
 
 use super::graphql::get_state;
 
@@ -19,7 +15,7 @@ impl QueryRoot {
     async fn docker_version(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         docker::docker_version(&get_state(ctx).await.docker)
             .await
-            .map_err(format_err)
+            .map_err(Into::into)
     }
 
     async fn apps(&self, ctx: &Context<'_>) -> Vec<App> {
