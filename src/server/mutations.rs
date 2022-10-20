@@ -6,14 +6,15 @@ use crate::{
     utils::graphql::{Result, Void},
 };
 
-use super::{graphql::get_state, state::get_runner_for};
+use super::state::{get_runner_for, get_state};
 
 pub struct MutationRoot;
 
 #[Object]
 impl MutationRoot {
     async fn create_app(&self, ctx: &Context<'_>, input: AppCreationInput) -> Result<App> {
-        let apps = &mut get_state(ctx).await.user_data.apps;
+        let mut state = get_state(ctx).await;
+        let apps = &mut state.user_data_mut().apps;
 
         if apps.iter().any(|app| app.name == input.name) {
             Err("An application already exists with the provided name")?;

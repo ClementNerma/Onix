@@ -29,14 +29,14 @@ impl Port {
         )
     }
 
-    pub fn find_collision(ports: &[Self]) -> Option<(Self, Self)> {
-        ports.iter().find_map(|port| {
-            ports
-                .iter()
-                .find(|other_port| port.collides_with(**other_port))
-                .map(|other_port| (*port, *other_port))
-        })
-    }
+    // pub fn find_collision(ports: &[Self]) -> Option<(Self, Self)> {
+    //     ports.iter().find_map(|port| {
+    //         ports
+    //             .iter()
+    //             .find(|other_port| port.collides_with(**other_port))
+    //             .map(|other_port| (*port, *other_port))
+    //     })
+    // }
 }
 
 impl Display for Port {

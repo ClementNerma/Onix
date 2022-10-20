@@ -1,16 +1,11 @@
-use async_graphql::{http::GraphiQLSource, Context, EmptySubscription, Schema};
+use async_graphql::{http::GraphiQLSource, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     response::{self, IntoResponse},
     Extension,
 };
-use tokio::sync::MutexGuard;
 
-use super::{
-    mutations::MutationRoot,
-    queries::QueryRoot,
-    state::{State, WrappedState},
-};
+use super::{mutations::MutationRoot, queries::QueryRoot, state::WrappedState};
 
 pub type AppSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
@@ -25,12 +20,4 @@ pub async fn graphiql(Extension(state): Extension<WrappedState>) -> impl IntoRes
             .endpoint(&format!("http://localhost:{}", state.lock().await.port))
             .finish(),
     )
-}
-
-pub async fn get_state<'a>(context: &'a Context<'_>) -> MutexGuard<'a, State> {
-    context
-        .data::<WrappedState>()
-        .expect("Assertion error: GraphQL context does not have the expected type")
-        .lock()
-        .await
 }

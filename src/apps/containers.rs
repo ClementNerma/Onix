@@ -12,7 +12,7 @@ use time::OffsetDateTime;
 
 use crate::{
     declare_id_type,
-    docker::{ContainerPortBinding, Port, NAME_PREFIX},
+    docker::{ContainerPortBinding, NAME_PREFIX},
     utils::time::get_now,
 };
 
@@ -150,6 +150,7 @@ pub struct AppContainerIdentity {
     pub app: AppIdentity,
 
     #[graphql(skip)]
+    #[serde(skip_serializing, skip_deserializing)]
     __private: PhantomData<()>,
 }
 

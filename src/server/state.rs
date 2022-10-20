@@ -1,13 +1,16 @@
 use std::sync::Arc;
 
+use anyhow::Result;
+use async_graphql::Context;
 use bollard::Docker;
 use tokio::sync::{Mutex, MutexGuard};
 
 use crate::{
     apps::{AppId, AppRunner, AppRunnerConfig, AppRunnerEnvironment},
     data::UserData,
-    utils::graphql::Result,
 };
+
+use super::user_data::{UserDataSaver, UserDataSavingState, WritableUserData};
 
 pub struct WrappedState(Arc<Mutex<State>>);
 
@@ -31,8 +34,11 @@ pub struct State {
     pub port: u16,
     pub address: String,
     pub docker: Docker,
-    pub user_data: UserData,
     pub runner_env: AppRunnerEnvironment,
+    pub user_data_saver: UserDataSaver,
+    pub user_data_saving_state: UserDataSavingState,
+
+    user_data: UserData,
 }
 
 impl State {
@@ -42,6 +48,7 @@ impl State {
             address,
             docker,
             user_data,
+            user_data_saver,
             runner_config,
         }: StateConfig,
     ) -> State {
@@ -49,9 +56,20 @@ impl State {
             port,
             address,
             docker,
-            user_data: user_data.unwrap_or_default(),
             runner_env: AppRunnerEnvironment::new(runner_config),
+            user_data_saver,
+            user_data_saving_state: UserDataSavingState::Unchanged,
+
+            user_data: user_data.unwrap_or_default(),
         }
+    }
+
+    pub fn user_data(&self) -> &UserData {
+        &self.user_data
+    }
+
+    pub fn user_data_mut(&mut self) -> WritableUserData {
+        WritableUserData::new(&mut self.user_data, &mut self.user_data_saving_state)
     }
 }
 
@@ -60,10 +78,11 @@ pub struct StateConfig {
     pub address: String,
     pub docker: Docker,
     pub user_data: Option<UserData>,
+    pub user_data_saver: UserDataSaver,
     pub runner_config: AppRunnerConfig,
 }
 
-pub async fn get_runner_for(state: &State, id: AppId) -> Result<AppRunner> {
+pub async fn get_runner_for(state: &State, id: AppId) -> Result<AppRunner, String> {
     let app = state
         .user_data
         .apps
@@ -72,4 +91,12 @@ pub async fn get_runner_for(state: &State, id: AppId) -> Result<AppRunner> {
         .ok_or("Provided application ID was not found")?;
 
     Ok(AppRunner::new(&state.docker, &state.runner_env, app))
+}
+
+pub async fn get_state<'a>(context: &'a Context<'_>) -> MutexGuard<'a, State> {
+    context
+        .data::<WrappedState>()
+        .expect("Assertion error: GraphQL context does not have the expected type")
+        .lock()
+        .await
 }

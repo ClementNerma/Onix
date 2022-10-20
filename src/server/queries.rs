@@ -6,7 +6,7 @@ use crate::{
     utils::graphql::{CustomGraphQLError, Result},
 };
 
-use super::{graphql::get_state, state::get_runner_for};
+use super::state::{get_runner_for, get_state};
 
 pub struct QueryRoot;
 
@@ -23,13 +23,13 @@ impl QueryRoot {
     }
 
     async fn apps(&self, ctx: &Context<'_>) -> Vec<App> {
-        get_state(ctx).await.user_data.apps.clone()
+        get_state(ctx).await.user_data().apps.clone()
     }
 
     async fn app(&self, ctx: &Context<'_>, id: AppId) -> Result<App, &'static str> {
         get_state(ctx)
             .await
-            .user_data
+            .user_data()
             .apps
             .iter()
             .find(|app| app.id == id)

@@ -3,6 +3,7 @@ mod logger;
 mod mutations;
 mod queries;
 mod state;
+mod user_data;
 
 use anyhow::{anyhow, Context, Result};
 use async_graphql::EmptySubscription;
@@ -17,6 +18,7 @@ use crate::server::{
     mutations::MutationRoot,
     queries::QueryRoot,
     state::WrappedState,
+    user_data::user_data_saver,
 };
 
 pub async fn start(config: StateConfig) -> Result<()> {
@@ -38,6 +40,11 @@ pub async fn start(config: StateConfig) -> Result<()> {
     };
 
     let addr = addr.parse().context("Failed to parse listening address")?;
+
+    info!("Starting the user data saver thread...");
+
+    let state_for_saver = state.clone();
+    std::thread::spawn(move || user_data_saver(state_for_saver));
 
     info!("Starting the server...");
 

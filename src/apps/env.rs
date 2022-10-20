@@ -7,7 +7,6 @@ pub struct AppRunnerConfig {
 }
 
 pub struct AppRunnerEnvironment {
-    pub(super) data_dir: PathBuf,
     pub(super) apps_dir: PathBuf,
 }
 
@@ -18,8 +17,6 @@ impl AppRunnerEnvironment {
 
         Self {
             apps_dir: data_dir.join("apps"),
-
-            data_dir,
         }
     }
 

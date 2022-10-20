@@ -128,5 +128,6 @@ pub struct AppIdentity {
     pub name: String,
 
     #[graphql(skip)]
+    #[serde(skip_serializing, skip_deserializing)]
     __private: PhantomData<()>,
 }
