@@ -61,7 +61,10 @@ impl AppContainer {
         }
 
         if NAME_VALIDATOR.is_match(&input.name) {
-            bail!("Invalid container name provided, please follow regex: {NAME_VALIDATOR:?}");
+            bail!(
+                "Invalid container name provided, please follow regex: {}",
+                NAME_VALIDATOR.as_str()
+            );
         }
 
         if input.image.trim().is_empty() {
@@ -77,7 +80,10 @@ impl AppContainer {
             .keys()
             .find(|name| !NAME_VALIDATOR.is_match(&name))
         {
-            bail!("Invalid environment variable name provided '{name}', please follow regex: {NAME_VALIDATOR:?}");
+            bail!(
+                "Invalid environment variable name provided '{name}', please follow regex: {}",
+                NAME_VALIDATOR.as_str()
+            );
         }
 
         if let Some((name, _)) = input

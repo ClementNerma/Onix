@@ -30,7 +30,10 @@ pub struct App {
 impl App {
     pub fn new(input: AppCreationInput) -> Result<Self> {
         if NAME_VALIDATOR.is_match(&input.name) {
-            bail!("Invalid name, please follow regex: {NAME_VALIDATOR:?}");
+            bail!(
+                "Invalid name, please follow regex: {}",
+                NAME_VALIDATOR.as_str()
+            );
         }
 
         #[deny(unused_variables)]
