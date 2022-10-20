@@ -1,15 +1,11 @@
 use std::{
     collections::{BTreeMap, HashSet},
-    fmt::{Display, Formatter},
     hash::Hash,
     marker::PhantomData,
 };
 
 use anyhow::{bail, Result};
-use async_graphql::{
-    ComplexObject, InputObject, InputValueError, InputValueResult, Scalar, ScalarType,
-    SimpleObject, Value,
-};
+use async_graphql::{ComplexObject, InputObject, SimpleObject};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -131,13 +127,7 @@ impl AppContainer {
     }
 
     pub fn docker_container_name(&self) -> String {
-        format!(
-            "{NAME_PREFIX}_{}_{}_{}_{}",
-            self.app.id.encode(),
-            self.app.name,
-            self.id.encode(),
-            self.name
-        )
+        format!("{NAME_PREFIX}{}_{}", self.app.id.encode(), self.id.encode())
     }
 }
 

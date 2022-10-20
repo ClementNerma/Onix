@@ -26,14 +26,20 @@ pub async fn create_container(
     docker
         .create_image(
             Some(CreateImageOptions {
-                from_image: config.name.clone(),
+                from_image: config.name.as_str(),
                 ..Default::default()
             }),
             None,
             None,
         )
         .try_collect::<Vec<_>>()
-        .await?;
+        .await
+        .with_context(|| {
+            format!(
+                "Failed to pull image '{}' for container '{}'",
+                config.image, config.name
+            )
+        })?;
 
     // =============================================================== //
 
@@ -125,7 +131,7 @@ pub struct ContainerMount {
     pub in_container: String,
     pub readonly: bool,
 }
-
+#[derive(Debug)]
 pub enum ContainerRestartPolicy {
     None,
     UnlessStopped,

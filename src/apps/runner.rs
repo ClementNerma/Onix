@@ -139,9 +139,16 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
                 container.id
             );
 
-            docker::create_container(self.docker, self.generate_container_config(container))
+            let config = self.generate_container_config(container);
+
+            docker::create_container(self.docker, config)
                 .await
-                .with_context(|| format!("Failed to create container '{}'", container.name))?;
+                .with_context(|| {
+                    format!(
+                        "Failed to create container '{}' for app '{}'",
+                        container.name, container.app.name
+                    )
+                })?;
         }
 
         info!("> All containers were successfully created!");

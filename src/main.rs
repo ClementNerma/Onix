@@ -38,7 +38,7 @@ async fn main() {
 }
 
 async fn inner_main(cmd: Cmd) -> Result<()> {
-    let docker = Docker::connect_with_local_defaults().context("Failed to connect to Docker")?;
+    let docker = Docker::connect_with_socket_defaults().context("Failed to connect to Docker")?;
 
     let config = StateConfig {
         address: cmd.address.unwrap_or_else(|| "127.0.0.1".into()),
