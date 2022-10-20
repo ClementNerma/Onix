@@ -35,7 +35,7 @@ pub struct AppContainerCreationInput {
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
 pub struct AppContainer {
     pub app: AppIdentity,
-    pub id: ContainerId,
+    pub id: AppContainerId,
     pub name: String,
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
@@ -110,7 +110,7 @@ impl AppContainer {
 
         Ok(Self {
             app,
-            id: ContainerId(rand::thread_rng().gen()),
+            id: AppContainerId(rand::thread_rng().gen()),
             name,
             image,
             env_vars,
@@ -140,7 +140,7 @@ impl AppContainer {
 
 #[derive(SimpleObject, Serialize, Hash, Clone, PartialEq, Eq)]
 pub struct AppContainerIdentity {
-    pub id: ContainerId,
+    pub id: AppContainerId,
     pub name: String,
     pub app: AppIdentity,
 
@@ -148,4 +148,4 @@ pub struct AppContainerIdentity {
     __private: PhantomData<()>,
 }
 
-declare_id_type!(ContainerId);
+declare_id_type!(AppContainerId);

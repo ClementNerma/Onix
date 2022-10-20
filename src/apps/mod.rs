@@ -5,7 +5,7 @@ mod runner;
 mod volumes;
 
 pub use app::{App, AppCreationInput, AppId};
-pub use containers::ContainerId;
+pub use containers::AppContainerId;
 pub use env::{AppRunnerConfig, AppRunnerEnvironment};
 pub use runner::{AppRunner, AppRunningStatus};
 

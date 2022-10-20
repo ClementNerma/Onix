@@ -1,5 +1,5 @@
 use crate::{
-    apps::{AppId, ContainerId},
+    apps::{AppContainerId, AppId},
     docker::{APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL, CONTAINER_NAME_LABEL, NAME_PREFIX},
 };
 
@@ -195,7 +195,7 @@ fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContaine
         docker_container_id: summary.id.context("Missing ID")?,
         app_id: AppId(app_id),
         app_name,
-        container_id: ContainerId(container_id),
+        container_id: AppContainerId(container_id),
         container_name,
         status,
     }))
@@ -205,7 +205,7 @@ pub struct ExistingContainer {
     pub docker_container_id: String,
     pub app_id: AppId,
     pub app_name: String,
-    pub container_id: ContainerId,
+    pub container_id: AppContainerId,
     pub container_name: String,
     pub status: ExistingContainerStatus,
 }
