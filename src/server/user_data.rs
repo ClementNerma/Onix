@@ -11,8 +11,18 @@ use crate::data::UserData;
 
 use super::state::WrappedState;
 
+/// Writable user data, acting as a mechanism to ensure proper data saving.
+///
+/// While it allows both non-mutable and mutable access to its inner data, it also takes care of the saving.
+///
+/// It is only generated when a writable access to the user data is requested.
+/// When this type is dorpped, it signals that modification happened to the creator through a reference.
+/// This allows to ensure the user data are in a consistent state before actually saving them.
 pub struct WritableUserData<'a> {
-    inner: &'a mut UserData,
+    /// The writable user data
+    pub inner: &'a mut UserData,
+
+    /// The (internally) modifiable saving state
     saving_state: &'a mut UserDataSavingState,
 }
 
@@ -39,24 +49,31 @@ impl<'a> DerefMut for WritableUserData<'a> {
     }
 }
 
+/// Notify the parent that user data were modified when this is dropped
 impl<'a> Drop for WritableUserData<'a> {
     fn drop(&mut self) {
-        error!("YOH BITCH");
         *self.saving_state = UserDataSavingState::Modified;
     }
 }
 
 pub type UserDataSaver = Box<dyn Fn(&UserData) -> Result<()> + Send + Sync>;
 
+/// State of the user data saving
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UserDataSavingState {
+    /// No modification happened since the last save
     Unchanged,
+
+    /// The data was modified since the last save
     Modified,
+
+    /// The data was modified since the last save, but the saver waits a bit before performing the actual save
     WaitingForSave,
 }
 
 static LOGGER_TARGET: &str = "state-saver";
 
+/// A blocking loop looking for user data modifications before triggering the actual save
 pub fn user_data_saver(state: WrappedState) -> ! {
     let state = || block_on(state.lock());
     let saving_state = || state().user_data_saving_state;

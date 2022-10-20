@@ -12,32 +12,27 @@ use crate::{
 
 use super::user_data::{UserDataSaver, UserDataSavingState, WritableUserData};
 
-pub struct WrappedState(Arc<Mutex<State>>);
-
-impl WrappedState {
-    pub fn new(config: StateConfig) -> Self {
-        Self(Arc::new(Mutex::new(State::new(config))))
-    }
-
-    pub async fn lock(&self) -> MutexGuard<State> {
-        self.0.lock().await
-    }
-}
-
-impl Clone for WrappedState {
-    fn clone(&self) -> Self {
-        Self(Arc::clone(&self.0))
-    }
-}
-
+/// The application's state
 pub struct State {
+    /// Port the server is running on
     pub port: u16,
+
+    /// Address the server is running on
     pub address: String,
+
+    /// Docker API client
     pub docker: Docker,
+
+    /// Runner environment
     pub runner_env: AppRunnerEnvironment,
+
+    /// Function used to save user data when modified
     pub user_data_saver: UserDataSaver,
+
+    /// Modification state of the user data
     pub user_data_saving_state: UserDataSavingState,
 
+    /// The user data
     user_data: UserData,
 }
 
@@ -73,6 +68,7 @@ impl State {
     }
 }
 
+/// Configuration object used to generate a state
 pub struct StateConfig {
     pub port: u16,
     pub address: String,
@@ -82,6 +78,31 @@ pub struct StateConfig {
     pub runner_config: AppRunnerConfig,
 }
 
+/// Wrapper for the server's state, used to synchronize it across multiple threads
+#[derive(Clone)]
+pub struct WrappedState(Arc<Mutex<State>>);
+
+impl WrappedState {
+    pub fn new(config: StateConfig) -> Self {
+        Self(Arc::new(Mutex::new(State::new(config))))
+    }
+
+    /// Get the inner state, locking it across all threads
+    pub async fn lock(&self) -> MutexGuard<State> {
+        self.0.lock().await
+    }
+}
+
+/// Get a readable and writable state from a GraphQL context
+pub async fn get_state<'a>(context: &'a Context<'_>) -> MutexGuard<'a, State> {
+    context
+        .data::<WrappedState>()
+        .expect("Assertion error: GraphQL context does not have the expected type")
+        .lock()
+        .await
+}
+
+/// Generate a runner for a specific application
 pub async fn get_runner_for(state: &State, id: AppId) -> Result<AppRunner, String> {
     let app = state
         .user_data
@@ -91,12 +112,4 @@ pub async fn get_runner_for(state: &State, id: AppId) -> Result<AppRunner, Strin
         .ok_or("Provided application ID was not found")?;
 
     Ok(AppRunner::new(&state.docker, &state.runner_env, app))
-}
-
-pub async fn get_state<'a>(context: &'a Context<'_>) -> MutexGuard<'a, State> {
-    context
-        .data::<WrappedState>()
-        .expect("Assertion error: GraphQL context does not have the expected type")
-        .lock()
-        .await
 }
