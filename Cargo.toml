@@ -9,6 +9,7 @@ async-graphql = { version = "4.0.15", default-features = false, features = ["tim
 async-graphql-axum = "4.0.15"
 async-trait = "0.1.58"
 axum = "0.5.16"
+base62 = "2.0.2"
 bollard = "0.13.0"
 clap = { version = "4.0.15", features = ["derive"] }
 dirs = "4.0.0"

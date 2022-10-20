@@ -133,7 +133,10 @@ impl AppContainer {
     pub fn docker_container_name(&self) -> String {
         format!(
             "{NAME_PREFIX}_{}_{}_{}_{}",
-            self.app.id, self.app.name, self.id, self.name
+            self.app.id.encode(),
+            self.app.name,
+            self.id.encode(),
+            self.name
         )
     }
 }
