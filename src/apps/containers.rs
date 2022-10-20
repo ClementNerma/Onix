@@ -10,7 +10,11 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-use crate::{declare_id_type, docker::NAME_PREFIX, utils::time::get_now};
+use crate::{
+    declare_id_type,
+    docker::{ContainerPortBinding, Port, NAME_PREFIX},
+    utils::time::get_now,
+};
 
 use super::{
     app::AppIdentity,
@@ -23,7 +27,7 @@ pub struct AppContainerCreationInput {
     pub name: String,
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
-    pub port_bindings: BTreeMap<u16, u16>,
+    pub port_bindings: Vec<ContainerPortBinding>,
     pub volumes: BTreeMap<String, AppVolume>,
     pub depends_on: HashSet<String>,
 }
@@ -35,7 +39,7 @@ pub struct AppContainer {
     pub name: String,
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
-    pub port_bindings: BTreeMap<u16, u16>,
+    pub port_bindings: Vec<ContainerPortBinding>,
 
     #[graphql(skip)]
     pub volumes: BTreeMap<String, AppVolume>,
@@ -92,6 +96,14 @@ impl AppContainer {
             .find(|(_, value)| value.trim().is_empty())
         {
             bail!("Please provide a value for the '{name}' environment variable or remove this variable");
+        }
+
+        if let Some((binding_a, binding_b)) =
+            ContainerPortBinding::find_collision(&input.port_bindings)
+        {
+            bail!(
+                "Collision detected between two bindings' ports: [{binding_a}] and [{binding_b}]"
+            );
         }
 
         #[deny(unused_variables)]

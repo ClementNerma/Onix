@@ -1,17 +1,25 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fmt::{Display, Formatter},
+};
 
 use anyhow::{bail, Context, Result};
+use async_graphql::{InputObject, SimpleObject};
 use bollard::{
     container::{Config, CreateContainerOptions, ListContainersOptions},
     image::CreateImageOptions,
     models::Mount,
     service::{
-        ContainerCreateResponse, ContainerSummary, HostConfig, RestartPolicy, RestartPolicyNameEnum,
+        ContainerCreateResponse, ContainerSummary, HostConfig, PortBinding, RestartPolicy,
+        RestartPolicyNameEnum,
     },
     Docker,
 };
 use futures::TryStreamExt;
 use log::info;
+use serde::{Deserialize, Serialize};
+
+use super::Port;
 
 pub async fn create_container(
     docker: &Docker,
@@ -47,6 +55,7 @@ pub async fn create_container(
         env,
         anon_volumes,
         mounts,
+        port_bindings,
         labels,
         restart_policy,
     } = config;
@@ -82,6 +91,21 @@ pub async fn create_container(
                 }),
                 maximum_retry_count: None,
             }),
+
+            port_bindings: Some(
+                port_bindings
+                    .into_iter()
+                    .map(|binding| {
+                        (
+                            binding.container_port.to_docker_port(),
+                            Some(vec![PortBinding {
+                                host_ip: None,
+                                host_port: Some(binding.host_port.to_docker_port()),
+                            }]),
+                        )
+                    })
+                    .collect(),
+            ),
 
             mounts: Some(
                 mounts
@@ -121,8 +145,44 @@ pub struct ContainerCreationConfig {
     pub env: BTreeMap<String, String>,
     pub anon_volumes: Vec<String>,
     pub mounts: Vec<ContainerMount>,
+    pub port_bindings: Vec<ContainerPortBinding>,
     pub labels: HashMap<String, String>,
     pub restart_policy: ContainerRestartPolicy,
+}
+
+#[derive(
+    SimpleObject, InputObject, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+)]
+#[graphql(input_name = "ContainerPortBindingInput")]
+pub struct ContainerPortBinding {
+    pub host_port: Port,
+    pub container_port: Port,
+}
+
+impl ContainerPortBinding {
+    pub fn collides_with(&self, other: Self) -> bool {
+        self.host_port.collides_with(other.host_port)
+            || self.container_port.collides_with(other.container_port)
+    }
+
+    pub fn find_collision(bindings: &[Self]) -> Option<(Self, Self)> {
+        bindings.iter().find_map(|binding| {
+            bindings
+                .iter()
+                .find(|other_binding| binding.collides_with(**other_binding))
+                .map(|other_binding| (*binding, *other_binding))
+        })
+    }
+}
+
+impl Display for ContainerPortBinding {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "(host) {} <=> {} (container)",
+            self.host_port, self.container_port
+        )
+    }
 }
 
 pub struct ContainerMount {

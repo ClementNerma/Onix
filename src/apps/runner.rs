@@ -275,6 +275,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             name: container.docker_container_name(),
             image: container.image.clone(),
             env: container.env_vars.clone(),
+            port_bindings: container.port_bindings.clone(),
             anon_volumes,
             mounts,
             labels: HashMap::from([
