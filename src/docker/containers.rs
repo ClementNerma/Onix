@@ -10,13 +10,17 @@ use bollard::{
     },
     Docker,
 };
-use futures::TryStreamExt;
+use futures::{StreamExt, TryStreamExt};
+use log::info;
 
 pub async fn create_container(
     docker: &Docker,
     config: ContainerCreationConfig,
 ) -> Result<ContainerCreateResponse> {
-    // ===== REQUIRED UNTIL CORRECT OPTIONS ARE ADDED TO BOLLARD ===== //
+    info!(
+        "==> Pulling image '{}' for container '{}'...",
+        config.image, config.name
+    );
 
     docker
         .create_image(
@@ -27,6 +31,13 @@ pub async fn create_container(
             None,
             None,
         )
+        .inspect(|val| {
+            if let Ok(val) = val {
+                if let Some(progress) = &val.progress {
+                    info!("==> Pulling progress: {progress}");
+                }
+            }
+        })
         .try_collect::<Vec<_>>()
         .await
         .with_context(|| {
@@ -35,8 +46,6 @@ pub async fn create_container(
                 config.image, config.name
             )
         })?;
-
-    // =============================================================== //
 
     #[deny(unused_variables)]
     let ContainerCreationConfig {
