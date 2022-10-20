@@ -1,8 +1,3 @@
-use crate::{
-    apps::{AppContainerId, AppId},
-    docker::{APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL, CONTAINER_NAME_LABEL, NAME_PREFIX},
-};
-
 use std::collections::{BTreeMap, HashMap};
 
 use anyhow::{bail, Context, Result};
