@@ -189,10 +189,13 @@ pub enum ExistingContainerStatus {
 
 impl ExistingContainerStatus {
     pub fn decode(input: &str) -> Result<Self> {
+        if input.starts_with("Up ") {
+            return Ok(Self::Running);
+        }
+
         match input {
             "Created" => Ok(Self::Created),
             "Restarting" => Ok(Self::Restarting),
-            "Running" => Ok(Self::Running),
             "Removing" => Ok(Self::Removing),
             "Paused" => Ok(Self::Paused),
             "Exited" => Ok(Self::Exited),
