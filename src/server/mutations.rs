@@ -31,7 +31,7 @@ impl MutationRoot {
 
         let runner = get_runner_for(&state, id).await?;
 
-        runner.start().await.map(|()| Void).map_err(Into::into)
+        runner.start().await.map(Into::into).map_err(Into::into)
     }
 
     async fn stop_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
@@ -39,6 +39,6 @@ impl MutationRoot {
 
         let runner = get_runner_for(&state, id).await?;
 
-        runner.stop().await.map(|()| Void).map_err(Into::into)
+        runner.stop().await.map(Into::into).map_err(Into::into)
     }
 }

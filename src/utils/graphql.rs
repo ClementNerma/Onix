@@ -163,3 +163,9 @@ impl ScalarType for Void {
         Value::Null
     }
 }
+
+impl From<()> for Void {
+    fn from(_: ()) -> Self {
+        Self
+    }
+}
