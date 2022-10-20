@@ -6,10 +6,11 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-use crate::{declare_id_type, utils::time::get_now};
+use crate::{declare_id_type, docker::ExistingContainer, utils::time::get_now};
 
 use super::{
     containers::{AppContainer, AppContainerCreationInput},
+    existing_containers::ExistingAppContainer,
     NAME_VALIDATOR,
 };
 
@@ -103,6 +104,18 @@ impl App {
         }
 
         Ok(())
+    }
+
+    pub fn decode_container(
+        &self,
+        container: ExistingContainer,
+    ) -> Result<Option<ExistingAppContainer>> {
+        let container = ExistingAppContainer::decode(container)?;
+
+        match container {
+            Some(container) if container.app_id == self.id => Ok(Some(container)),
+            _ => Ok(None),
+        }
     }
 }
 

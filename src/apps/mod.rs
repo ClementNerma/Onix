@@ -1,6 +1,7 @@
 mod app;
 mod containers;
 mod env;
+mod existing_containers;
 mod runner;
 mod volumes;
 

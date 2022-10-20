@@ -149,74 +149,26 @@ pub async fn list_containers(docker: &Docker) -> Result<Vec<ExistingContainer>> 
 
     let list = containers
         .into_iter()
-        .filter_map(|summary| match decode_container(summary) {
-            Ok(Some(container)) => Some(Ok(container)),
-            Ok(None) => None,
-            Err(err) => Some(Err(err)),
-        })
+        .map(decode_container)
         .collect::<Result<Vec<_>, _>>()
         .context("Failed to analyze the list of existing Docker containers")?;
 
     Ok(list)
 }
 
-fn decode_container(summary: ContainerSummary) -> Result<Option<ExistingContainer>> {
-    let names = match summary.names {
-        Some(names) => names,
-        None => return Ok(None),
-    };
-
-    if names.len() != 1 {
-        return Ok(None);
-    }
-
-    if !names[0].starts_with(NAME_PREFIX) && !names[0].starts_with(&format!("/{NAME_PREFIX}")) {
-        return Ok(None);
-    }
-
-    let labels = summary.labels.context("Missing container labels")?;
-
-    let app_id = labels
-        .get(APP_ID_LABEL)
-        .context("Missing label for application ID")?;
-
-    let app_id = AppId::decode(app_id).context("Failed to parse application ID")?;
-
-    let app_name = labels
-        .get(APP_NAME_LABEL)
-        .context("Missing label for application name")?
-        .clone();
-
-    let container_id = labels
-        .get(CONTAINER_ID_LABEL)
-        .context("Missing label for container ID")?;
-
-    let container_id =
-        AppContainerId::decode(container_id).context("Failed to parse container ID")?;
-
-    let container_name = labels
-        .get(CONTAINER_NAME_LABEL)
-        .context("Missing label for container name")?
-        .clone();
-
-    let status = ExistingContainerStatus::decode(&summary.status.context("Missing status")?)?;
-
-    Ok(Some(ExistingContainer {
+fn decode_container(summary: ContainerSummary) -> Result<ExistingContainer> {
+    Ok(ExistingContainer {
         docker_container_id: summary.id.context("Missing ID")?,
-        app_id,
-        app_name,
-        container_id,
-        container_name,
-        status,
-    }))
+        names: summary.names.context("Missing names")?,
+        labels: summary.labels.context("Missing labels")?,
+        status: ExistingContainerStatus::decode(&summary.status.context("Missing status")?)?,
+    })
 }
 
 pub struct ExistingContainer {
     pub docker_container_id: String,
-    pub app_id: AppId,
-    pub app_name: String,
-    pub container_id: AppContainerId,
-    pub container_name: String,
+    pub names: Vec<String>,
+    pub labels: HashMap<String, String>,
     pub status: ExistingContainerStatus,
 }
 

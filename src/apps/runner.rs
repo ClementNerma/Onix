@@ -19,7 +19,10 @@ use crate::{
     },
 };
 
-use super::{app::App, containers::AppContainer, env::AppRunnerEnvironment};
+use super::{
+    app::App, containers::AppContainer, env::AppRunnerEnvironment,
+    existing_containers::ExistingAppContainer,
+};
 
 pub struct AppRunner<'a, 'b, 'c> {
     docker: &'a Docker,
@@ -32,6 +35,17 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
         Self { docker, env, app }
     }
 
+    async fn list_existing_containers(&self) -> Result<Vec<ExistingAppContainer>> {
+        let containers = docker::list_containers(&self.docker)
+            .await
+            .context("Failed to obtain the list of existing Docker containers")?;
+
+        containers
+            .into_iter()
+            .filter_map(|container| self.app.decode_container(container).transpose())
+            .collect::<Result<Vec<_>, _>>()
+    }
+
     pub async fn status(&self) -> Result<AppRunningStatus> {
         let container_ids = self
             .app
@@ -40,7 +54,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             .map(|container| container.id)
             .collect::<HashSet<_>>();
 
-        let existing = docker::list_containers(self.docker).await?;
+        let existing = self.list_existing_containers().await?;
 
         let existing = existing
             .into_iter()
@@ -192,7 +206,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
     }
 
     pub async fn stop(&self) -> Result<()> {
-        let containers = docker::list_containers(self.docker).await?;
+        let containers = self.list_existing_containers().await?;
 
         let docker = Arc::new(self.docker.clone());
 
