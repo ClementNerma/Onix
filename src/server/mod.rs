@@ -44,7 +44,11 @@ pub async fn start(config: StateConfig) -> Result<()> {
     info!("Starting the user data saver thread...");
 
     let state_for_saver = state.clone();
-    std::thread::spawn(move || user_data_saver(state_for_saver));
+
+    tokio::spawn(async move {
+        user_data_saver(state_for_saver).await;
+        panic!("Assertion error: user data saver loop unexpectedly exited!");
+    });
 
     info!("Starting the server...");
 

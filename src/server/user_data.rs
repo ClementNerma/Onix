@@ -73,16 +73,16 @@ pub enum UserDataSavingState {
 
 static LOGGER_TARGET: &str = "state-saver";
 
-/// A blocking loop looking for user data modifications before triggering the actual save
-pub fn user_data_saver(state: WrappedState) -> ! {
+/// A loop looking for user data modifications before triggering the actual save
+pub async fn user_data_saver(state: WrappedState) -> ! {
     let state = || block_on(state.lock());
     let saving_state = || state().user_data_saving_state;
-    let wait = || std::thread::sleep(Duration::from_secs(1));
+    let wait = || tokio::time::sleep(Duration::from_secs(1));
 
     loop {
         match saving_state() {
             UserDataSavingState::Unchanged => {
-                wait();
+                wait().await;
                 continue;
             }
 
@@ -96,7 +96,7 @@ pub fn user_data_saver(state: WrappedState) -> ! {
                     trace!(target: LOGGER_TARGET, "{:?}", saving_state());
 
                     state().user_data_saving_state = UserDataSavingState::WaitingForSave;
-                    wait();
+                    wait().await;
                 }
 
                 trace!(
@@ -113,8 +113,7 @@ pub fn user_data_saver(state: WrappedState) -> ! {
                 }
 
                 state.user_data_saving_state = UserDataSavingState::Unchanged;
-
-                wait();
+                wait().await;
             }
 
             UserDataSavingState::WaitingForSave => {
