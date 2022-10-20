@@ -1,6 +1,4 @@
-use std::sync::Arc;
-
-use async_graphql::{http::GraphiQLSource, Context, EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{http::GraphiQLSource, Context, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     response::{self, IntoResponse},
@@ -9,11 +7,12 @@ use axum::{
 use tokio::sync::MutexGuard;
 
 use super::{
+    mutations::MutationRoot,
     queries::QueryRoot,
     state::{State, WrappedState},
 };
 
-type AppSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+pub type AppSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()

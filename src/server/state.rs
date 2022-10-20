@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use bollard::Docker;
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, MutexGuard};
 
 use crate::{
     apps::{AppRunner, AppRunnerConfig, AppRunnerEnvironment},
@@ -9,7 +9,23 @@ use crate::{
     utils::graphql::Result,
 };
 
-pub type WrappedState = Arc<Mutex<State>>;
+pub struct WrappedState(Arc<Mutex<State>>);
+
+impl WrappedState {
+    pub fn new(config: StateConfig) -> Self {
+        Self(Arc::new(Mutex::new(State::new(config))))
+    }
+
+    pub async fn lock(&self) -> MutexGuard<State> {
+        self.0.lock().await
+    }
+}
+
+impl Clone for WrappedState {
+    fn clone(&self) -> Self {
+        Self(Arc::clone(&self.0))
+    }
+}
 
 pub struct State {
     pub port: u16,
@@ -20,7 +36,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(
+    fn new(
         #[deny(unused_variables)] StateConfig {
             port,
             address,
@@ -28,7 +44,7 @@ impl State {
             user_data,
             runner_config,
         }: StateConfig,
-    ) -> Self {
+    ) -> State {
         State {
             port,
             address,

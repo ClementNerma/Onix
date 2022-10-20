@@ -20,7 +20,6 @@ use super::{
 
 #[derive(InputObject, Deserialize)]
 pub struct AppContainerCreationInput {
-    pub app: AppIdentity,
     pub name: String,
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
@@ -56,7 +55,7 @@ impl AppContainer {
 }
 
 impl AppContainer {
-    pub fn new(input: AppContainerCreationInput) -> Result<Self> {
+    pub fn new(app: AppIdentity, input: AppContainerCreationInput) -> Result<Self> {
         if input.name.trim().is_empty() {
             bail!("Please provide a non-empty name for this container")
         }
@@ -84,14 +83,13 @@ impl AppContainer {
         if let Some((name, _)) = input
             .env_vars
             .iter()
-            .find(|(name, value)| value.trim().is_empty())
+            .find(|(_, value)| value.trim().is_empty())
         {
             bail!("Please provide a value for the '{name}' environment variable or remove this variable");
         }
 
         #[deny(unused_variables)]
         let AppContainerCreationInput {
-            app,
             name,
             image,
             env_vars,

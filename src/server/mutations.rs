@@ -2,14 +2,11 @@ use anyhow::Context as _;
 use async_graphql::{Context, Object};
 
 use crate::{
-    apps::{App, AppCreationInput, AppRunner, AppRunningStatus},
-    utils::graphql::{CustomGraphQLError, Result, Void},
+    apps::{App, AppCreationInput},
+    utils::graphql::{Result, Void},
 };
 
-use super::{
-    graphql::get_state,
-    state::{get_runner_for, State},
-};
+use super::{graphql::get_state, state::get_runner_for};
 
 pub struct MutationRoot;
 

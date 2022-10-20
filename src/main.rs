@@ -13,7 +13,6 @@ use anyhow::{Context, Result};
 use apps::AppRunnerConfig;
 use bollard::Docker;
 use clap::Parser;
-use data::UserData;
 use log::{info, LevelFilter};
 use server::StateConfig;
 

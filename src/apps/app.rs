@@ -36,18 +36,20 @@ impl App {
         #[deny(unused_variables)]
         let AppCreationInput { name, containers } = input;
 
-        let containers = containers
-            .into_iter()
-            .map(AppContainer::new)
-            .collect::<Result<Vec<_>, _>>()
-            .with_context(|| format!("Failed to create containers for application '{}'", name))?;
-
         let mut app = Self {
             id: rand::thread_rng().gen(),
             name,
             containers: vec![],
             created_on: get_now(),
         };
+
+        let containers = containers
+            .into_iter()
+            .map(|input| AppContainer::new(app.identity(), input))
+            .collect::<Result<Vec<_>, _>>()
+            .with_context(|| {
+                format!("Failed to create containers for application '{}'", app.name)
+            })?;
 
         app.add_containers(containers)?;
 
