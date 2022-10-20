@@ -8,17 +8,35 @@ use std::collections::{BTreeMap, HashMap};
 use anyhow::{bail, Context, Result};
 use bollard::{
     container::{Config, CreateContainerOptions},
+    image::CreateImageOptions,
     models::Mount,
     service::{
         ContainerCreateResponse, ContainerSummary, HostConfig, RestartPolicy, RestartPolicyNameEnum,
     },
     Docker,
 };
+use futures::TryStreamExt;
 
 pub async fn create_container(
     docker: &Docker,
     config: ContainerCreationConfig,
 ) -> Result<ContainerCreateResponse> {
+    // ===== REQUIRED UNTIL CORRECT OPTIONS ARE ADDED TO BOLLARD ===== //
+
+    docker
+        .create_image(
+            Some(CreateImageOptions {
+                from_image: config.name.clone(),
+                ..Default::default()
+            }),
+            None,
+            None,
+        )
+        .try_collect::<Vec<_>>()
+        .await?;
+
+    // =============================================================== //
+
     #[deny(unused_variables)]
     let ContainerCreationConfig {
         name,
