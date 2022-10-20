@@ -146,19 +146,16 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
 
     pub async fn start(&self) -> Result<()> {
         match self.status().await? {
-            AppRunningStatus::NotCreated => {}
+            AppRunningStatus::NotCreated => bail!("Application's containers are not created yet"),
             AppRunningStatus::PartiallyCreated => {
-                bail!("Some of the application's containers is/are already created")
+                bail!("Some of the application's containers have not been created")
             }
             AppRunningStatus::Zombie => bail!("At least one container is in zombie mode"),
             AppRunningStatus::Intermediary => {
                 bail!("At least one container is in an intermediary state")
             }
-            AppRunningStatus::Stopped
-            | AppRunningStatus::PartiallyRunning
-            | AppRunningStatus::FullyRunning => {
-                bail!("Application's containers already exist")
-            }
+            AppRunningStatus::Stopped | AppRunningStatus::PartiallyRunning => {}
+            AppRunningStatus::FullyRunning => return Ok(()),
         }
 
         let containers = self.sort_containers_by_deps();
