@@ -149,7 +149,7 @@ macro_rules! graphql_enum {
 #[macro_export]
 macro_rules! declare_id_type {
     ($typename: ident) => {
-        #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+        #[derive(Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
         pub struct $typename(pub u64);
 
         impl $typename {
@@ -171,6 +171,12 @@ macro_rules! declare_id_type {
         }
 
         impl ::std::fmt::Display for $typename {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                write!(f, "{}", self.encode())
+            }
+        }
+
+        impl ::std::fmt::Debug for $typename {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 write!(f, "{} ({})", self.0, self.encode())
             }
