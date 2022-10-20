@@ -9,6 +9,8 @@ mod server;
 mod utils;
 
 use self::cmd::Cmd;
+use self::utils::time::get_now;
+
 use anyhow::{Context, Result};
 use apps::AppRunnerConfig;
 use bollard::Docker;
@@ -18,6 +20,9 @@ use server::StateConfig;
 
 #[tokio::main]
 async fn main() {
+    // Trigger offest fetching
+    get_now();
+
     let cmd = Cmd::parse();
 
     env_logger::builder()
