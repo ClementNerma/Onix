@@ -13,7 +13,7 @@
     "plugin:solid/typescript"
   ],
   "root": true,
-  "ignorePatterns": ["node_modules"],
+  "ignorePatterns": ["node_modules", "src/graphql/generated.ts"],
   "rules": {
     "prettier/prettier": "warn",
     "@typescript-eslint/no-explicit-any": "off",

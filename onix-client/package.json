@@ -7,10 +7,14 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "gql": "graphql-codegen"
   },
   "license": "Apache-2.0",
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.13.7",
+    "@graphql-codegen/typescript": "^2.7.5",
+    "@graphql-codegen/typescript-operations": "^2.5.5",
     "@suid/vite-plugin": "^0.0.3",
     "@typescript-eslint/eslint-plugin": "^5.40.1",
     "@typescript-eslint/parser": "^5.40.1",
@@ -24,11 +28,23 @@
     "vite-plugin-solid": "^2.3.10"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.0",
+    "@graphql-codegen/typescript-generic-sdk": "^3.0.3",
+    "@merged/solid-apollo": "^1.7.1",
     "@solidjs/router": "^0.5.0",
     "@suid/icons-material": "^0.4.1",
     "@suid/material": "^0.6.3",
+    "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6",
     "solid-js": "^1.6.0",
-    "solid-styled-components": "^0.28.5",
-    "styled": "link:@suid/system/styled"
+    "solid-styled-components": "^0.28.5"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@types/node",
+        "ts-node"
+      ]
+    }
   }
 }
