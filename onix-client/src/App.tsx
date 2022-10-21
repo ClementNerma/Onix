@@ -1,21 +1,12 @@
-import { useAppQuery } from './graphql/generated'
+import { ApolloProvider } from '@apollo/client'
+import { client } from './graphql/client'
+import { HomePage } from './pages/HomePage'
+import { Template } from './templates/Template'
 
-function App() {
-  const { data, loading, error } = useAppQuery()
-
-  if (error) {
-    return <h1>Failed: {error.message}</h1>
-  }
-
-  if (loading || !data) {
-    return <h1>Loading...</h1>
-  }
-
-  return (
-    <h1>
-      Docker version: <small>{data.dockerVersion}</small>
-    </h1>
-  )
-}
-
-export default App
+export const App = () => (
+  <ApolloProvider client={client}>
+    <Template>
+      <HomePage />
+    </Template>
+  </ApolloProvider>
+)
