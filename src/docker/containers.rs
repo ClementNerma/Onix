@@ -67,6 +67,13 @@ pub async fn create_container(
                 .collect(),
         ),
 
+        exposed_ports: Some(
+            port_bindings
+                .iter()
+                .map(|binding| (binding.container_port.to_docker_port(), HashMap::new()))
+                .collect(),
+        ),
+
         host_config: Some(HostConfig {
             restart_policy: Some(RestartPolicy {
                 name: Some(match restart_policy {
@@ -79,7 +86,7 @@ pub async fn create_container(
 
             port_bindings: Some(
                 port_bindings
-                    .into_iter()
+                    .iter()
                     .map(|binding| {
                         (
                             binding.container_port.to_docker_port(),
