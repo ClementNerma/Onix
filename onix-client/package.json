@@ -51,5 +51,13 @@
   },
   "volta": {
     "node": "19.0.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@types/node",
+        "ts-node"
+      ]
+    }
   }
 }
