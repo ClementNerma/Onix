@@ -1,0 +1,12 @@
+overwrite: true
+schema: 'http://localhost:5871'
+documents: 'src/**/*.gql'
+generates:
+  src/graphql/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - graphql-codegen-svelte-apollo
+    config:
+      clientPath: ../apollo-client
+      asyncQuery: true

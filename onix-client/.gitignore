@@ -1,2 +1,9 @@
-node_modules
-dist
+/node_modules
+/tsconfig.build.tsbuildinfo
+/src/graphql
+/src/**/*.generated.ts
+/dist
+
+/.pnpm-debug.log
+
+.env.*
