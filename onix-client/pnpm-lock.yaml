@@ -13,6 +13,8 @@ specifiers:
   eslint-plugin-solid: ^0.7.3
   prettier: ^2.7.1
   solid-js: ^1.6.0
+  solid-styled-components: ^0.28.5
+  styled: link:@suid/system/styled
   typescript: ^4.8.4
   vite: ^3.1.8
   vite-plugin-solid: ^2.3.10
@@ -22,6 +24,8 @@ dependencies:
   '@suid/icons-material': 0.4.1_solid-js@1.6.0
   '@suid/material': 0.6.3_solid-js@1.6.0
   solid-js: 1.6.0
+  solid-styled-components: 0.28.5_solid-js@1.6.0
+  styled: link:@suid/system/styled
 
 devDependencies:
   '@suid/vite-plugin': 0.0.3_vite@3.1.8
@@ -1632,6 +1636,14 @@ packages:
       slash: 3.0.0
     dev: true
 
+  /goober/2.1.11_csstype@3.1.1:
+    resolution: {integrity: sha512-5SS2lmxbhqH0u9ABEWq7WPU69a4i2pYcHeCxqaNq6Cw3mnrF0ghWNM4tEGid4dKy8XNIAUbuThuozDHHKJVh3A==}
+    peerDependencies:
+      csstype: ^3.0.10
+    dependencies:
+      csstype: 3.1.1
+    dev: false
+
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
     dev: true
@@ -2205,6 +2217,16 @@ packages:
       '@babel/types': 7.18.8
       solid-js: 1.6.0
     dev: true
+
+  /solid-styled-components/0.28.5_solid-js@1.6.0:
+    resolution: {integrity: sha512-vwTcdp76wZNnESIzB6rRZ3U55NgcSAQXCiiRIiEFhxTFqT0bEh/warNT1qaRZu4OkAzrBkViOngF35ktI8sc4A==}
+    peerDependencies:
+      solid-js: ^1.4.4
+    dependencies:
+      csstype: 3.1.1
+      goober: 2.1.11_csstype@3.1.1
+      solid-js: 1.6.0
+    dev: false
 
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}

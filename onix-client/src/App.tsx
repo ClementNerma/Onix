@@ -1,11 +1,14 @@
 import { Router } from '@solidjs/router'
 import type { Component } from 'solid-js'
-import { AppRoutes } from './pages/Routes'
+import { Template } from './organisms/Template'
+import { AppRoutes } from './Routes'
 
 const App: Component = () => {
   return (
     <Router>
-      <AppRoutes />
+      <Template>
+        <AppRoutes />
+      </Template>
     </Router>
   )
 }
