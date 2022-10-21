@@ -47,7 +47,7 @@ async fn inner_main(cmd: Cmd) -> Result<()> {
 
     let config = StateConfig {
         address: cmd.address.unwrap_or_else(|| "127.0.0.1".into()),
-        port: cmd.port,
+        port: cmd.port.unwrap_or(5871),
         docker,
 
         // TODO: configurable directories

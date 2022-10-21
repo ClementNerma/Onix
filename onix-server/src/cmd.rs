@@ -8,7 +8,7 @@ pub struct Cmd {
     pub address: Option<String>,
 
     #[clap(short, long, help = "Port to run the server on")]
-    pub port: u16,
+    pub port: Option<u16>,
 
     #[clap(short, long, help = "Logging level")]
     pub logging_level: Option<LevelFilter>,
