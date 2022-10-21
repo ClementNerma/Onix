@@ -1,4 +1,3 @@
-import { ApolloProvider } from '@apollo/client'
 import { useAppQuery } from '../graphql/generated'
 
 export function HomePage() {
