@@ -11,7 +11,14 @@
     "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "root": true,
-  "ignorePatterns": [".eslintrc", "vite.config.js", "node_modules", "src/graphql/generated.ts", "**/*.svelte"],
+  "ignorePatterns": [
+    ".eslintrc",
+    "vite.config.js",
+    "svelte.config.js",
+    "node_modules",
+    "src/graphql/generated.ts",
+    "**/*.svelte"
+  ],
   "rules": {
     "prettier/prettier": "warn",
     "@typescript-eslint/no-explicit-any": "off",
