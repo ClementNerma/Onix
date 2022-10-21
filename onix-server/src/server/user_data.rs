@@ -4,8 +4,8 @@ use std::{
 };
 
 use anyhow::Result;
-use futures::executor::block_on;
 use log::{debug, error, trace};
+use tokio::time::sleep;
 
 use crate::data::UserData;
 
@@ -72,17 +72,14 @@ pub enum UserDataSavingState {
 }
 
 static LOGGER_TARGET: &str = "state-saver";
+static SLEEP_DURATION: Duration = Duration::from_secs(1);
 
 /// A loop looking for user data modifications before triggering the actual save
 pub async fn user_data_saver(state: WrappedState) -> ! {
-    let state = || block_on(state.lock());
-    let saving_state = || state().user_data_saving_state;
-    let wait = || tokio::time::sleep(Duration::from_secs(1));
-
     loop {
-        match saving_state() {
+        match { state.lock().await.user_data_saving_state } {
             UserDataSavingState::Unchanged => {
-                wait().await;
+                sleep(SLEEP_DURATION).await;
                 continue;
             }
 
@@ -92,11 +89,14 @@ pub async fn user_data_saver(state: WrappedState) -> ! {
                     "State was modified, waiting for no modification until a delay..."
                 );
 
-                while saving_state() == UserDataSavingState::Modified {
-                    trace!(target: LOGGER_TARGET, "{:?}", saving_state());
+                while { state.lock().await.user_data_saving_state } == UserDataSavingState::Modified
+                {
+                    {
+                        state.lock().await.user_data_saving_state =
+                            UserDataSavingState::WaitingForSave;
+                    }
 
-                    state().user_data_saving_state = UserDataSavingState::WaitingForSave;
-                    wait().await;
+                    sleep(SLEEP_DURATION).await;
                 }
 
                 trace!(
@@ -104,7 +104,7 @@ pub async fn user_data_saver(state: WrappedState) -> ! {
                     "| No modification since the defined period of time, saving..."
                 );
 
-                let mut state = state();
+                let mut state = state.lock().await;
 
                 if let Err(err) = (state.user_data_saver)(state.user_data()) {
                     error!(target: LOGGER_TARGET, "Failed to save user data: {err:?}");
@@ -113,7 +113,10 @@ pub async fn user_data_saver(state: WrappedState) -> ! {
                 }
 
                 state.user_data_saving_state = UserDataSavingState::Unchanged;
-                wait().await;
+
+                drop(state);
+
+                sleep(SLEEP_DURATION).await;
             }
 
             UserDataSavingState::WaitingForSave => {
