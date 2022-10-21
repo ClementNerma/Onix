@@ -233,6 +233,48 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
         Ok(())
     }
 
+    pub async fn remove_containers(&self) -> Result<()> {
+        match self.status().await? {
+            AppRunningStatus::NotCreated => bail!("Application's containers are not created yet"),
+            AppRunningStatus::PartiallyCreated | AppRunningStatus::Stopped => {}
+            AppRunningStatus::Zombie => bail!("At least one container is in zombie mode"),
+            AppRunningStatus::Intermediary => {
+                bail!("At least one container is in an intermediary state")
+            }
+            AppRunningStatus::PartiallyRunning => {
+                bail!("Some of the application's containers are still running")
+            }
+            AppRunningStatus::FullyRunning => return Ok(()),
+        }
+
+        let containers = self.list_existing_containers().await?;
+
+        let docker = Arc::new(self.docker.clone());
+
+        let tasks = containers
+            .into_iter()
+            .rev()
+            .filter(|container| container.app_id == self.app.id)
+            .map(|container| {
+                let docker = Arc::clone(&docker);
+
+                async move {
+                    docker::remove_container(&docker, &container.docker_container_id)
+                        .await
+                        .with_context(|| {
+                            format!("Failed to stop container '{}'", container.container_name)
+                        })?;
+
+                    Ok::<(), anyhow::Error>(())
+                }
+            })
+            .collect::<Vec<_>>();
+
+        try_join_all(tasks).await?;
+
+        Ok(())
+    }
+
     fn generate_container_config(&self, container: &AppContainer) -> ContainerCreationConfig {
         assert_eq!(
             container.app.id, self.app.id,

@@ -272,3 +272,10 @@ pub async fn stop_container(docker: &Docker, name: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub async fn remove_container(docker: &Docker, name: &str) -> Result<()> {
+    docker
+        .remove_container(name, None)
+        .await
+        .with_context(|| format!("Failed to remove container '{name}'"))
+}
