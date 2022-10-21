@@ -7,7 +7,6 @@ use anyhow::{bail, Context, Result};
 use async_graphql::{InputObject, SimpleObject};
 use bollard::{
     container::{Config, CreateContainerOptions, ListContainersOptions},
-    image::{CreateImageOptions, ListImagesOptions},
     models::Mount,
     service::{
         ContainerCreateResponse, ContainerSummary, HostConfig, PortBinding, RestartPolicy,
@@ -15,47 +14,23 @@ use bollard::{
     },
     Docker,
 };
-use futures::TryStreamExt;
 use log::info;
 use serde::{Deserialize, Serialize};
 
+use super::images::{has_image_locally, pull_image};
 use super::Port;
 
 pub async fn create_container(
     docker: &Docker,
     config: ContainerCreationConfig,
 ) -> Result<ContainerCreateResponse> {
-    let images = docker
-        .list_images(Some(ListImagesOptions {
-            filters: HashMap::from([("reference", vec![config.image.as_str()])]),
-            ..Default::default()
-        }))
-        .await
-        .context("Failed to obtain the list of existing Docker images")?;
-
-    if images.is_empty() {
+    if !has_image_locally(docker, &config.image).await? {
         info!(
             "==> Pulling image '{}' for container '{}'...",
             config.image, config.name
         );
 
-        docker
-            .create_image(
-                Some(CreateImageOptions {
-                    from_image: config.image.as_str(),
-                    ..Default::default()
-                }),
-                None,
-                None,
-            )
-            .try_collect::<Vec<_>>()
-            .await
-            .with_context(|| {
-                format!(
-                    "Failed to pull image '{}' for container '{}'",
-                    config.image, config.name
-                )
-            })?;
+        pull_image(docker, &config.image).await?;
     }
 
     #[deny(unused_variables)]
