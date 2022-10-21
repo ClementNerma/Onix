@@ -1,7 +1,13 @@
+import { Router } from '@solidjs/router'
 import type { Component } from 'solid-js'
+import { AppRoutes } from './pages/Routes'
 
 const App: Component = () => {
-  return <h1>Hello world!</h1>
+  return (
+    <Router>
+      <AppRoutes />
+    </Router>
+  )
 }
 
 export default App
