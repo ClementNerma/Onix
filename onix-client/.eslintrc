@@ -4,21 +4,16 @@
     "project": "tsconfig.json",
     "sourceType": "module"
   },
+  "plugins": ["solid", "prettier"],
   "extends": [
-    "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:solid/typescript"
   ],
   "root": true,
-  "ignorePatterns": [
-    ".eslintrc",
-    "vite.config.js",
-    "svelte.config.js",
-    "node_modules",
-    "src/graphql/generated.ts",
-    "**/*.svelte"
-  ],
+  "ignorePatterns": ["node_modules"],
   "rules": {
     "prettier/prettier": "warn",
     "@typescript-eslint/no-explicit-any": "off",
