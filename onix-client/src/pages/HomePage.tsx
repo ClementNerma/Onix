@@ -1,4 +1,5 @@
 import { useAppQuery } from '../graphql/generated'
+import { Box } from '@chakra-ui/react'
 
 export function HomePage() {
   const { data, loading, error } = useAppQuery()
@@ -11,9 +12,5 @@ export function HomePage() {
     return <h1>Loading...</h1>
   }
 
-  return (
-    <h1>
-      Docker version: <small>{data.dockerVersion}</small>
-    </h1>
-  )
+  return <Box>{data.dockerVersion}</Box>
 }
