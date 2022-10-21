@@ -1,16 +1,9 @@
-import { Router } from '@solidjs/router'
-import type { Component } from 'solid-js'
-import { Template } from './organisms/Template'
-import { AppRoutes } from './Routes'
+import { useState } from 'react'
 
-const App: Component = () => {
-  return (
-    <Router>
-      <Template>
-        <AppRoutes />
-      </Template>
-    </Router>
-  )
+function App() {
+  const [count, setCount] = useState(0)
+
+  return <h1>{count}</h1>
 }
 
 export default App

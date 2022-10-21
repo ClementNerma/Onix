@@ -1,13 +1,9 @@
 import { defineConfig } from 'vite'
-import solidPlugin from 'vite-plugin-solid'
-import suidPlugin from '@suid/vite-plugin'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  plugins: [solidPlugin(), suidPlugin()],
+  plugins: [react()],
   server: {
-    port: 5870,
-  },
-  build: {
-    target: 'esnext',
-  },
+  	port: 5870
+  }
 })
