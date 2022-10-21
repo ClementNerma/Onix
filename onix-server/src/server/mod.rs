@@ -7,8 +7,9 @@ mod user_data;
 
 use anyhow::{anyhow, Context, Result};
 use async_graphql::EmptySubscription;
-use axum::{extract::Extension, routing::get, Router, Server};
+use axum::{extract::Extension, http::Method, routing::get, Router, Server};
 use log::info;
+use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
 
 pub use state::StateConfig;
 
@@ -22,6 +23,13 @@ use crate::server::{
 };
 
 pub async fn start(config: StateConfig) -> Result<()> {
+    // TODO: Restrict origin allowing to the same host
+    // TODO: Investigate if headers should be limited to a whitelist
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+        .allow_origin(AllowOrigin::any())
+        .allow_headers(AllowHeaders::any());
+
     let state = WrappedState::new(config);
 
     let schema = AppSchema::build(QueryRoot, MutationRoot, EmptySubscription)
@@ -31,6 +39,7 @@ pub async fn start(config: StateConfig) -> Result<()> {
 
     let app = Router::new()
         .route("/", get(graphiql).post(graphql_handler))
+        .layer(cors)
         .layer(Extension(schema))
         .layer(Extension(state.clone()));
 
