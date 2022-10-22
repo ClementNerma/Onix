@@ -1,0 +1,18 @@
+fragment AppContainer on AppContainer {
+  id
+  name
+  image
+  envVars
+  portBindings {
+    hostPort {
+      port
+      portType
+    }
+    containerPort {
+      port
+      portType
+    }
+  }
+  dependsOn
+  createdOn
+}

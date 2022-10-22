@@ -10,7 +10,7 @@ const pages: SideNavItem[] = [
   },
 ]
 
-export const FullPageContainer = styled(Flex)`
+const FullPageContainer = styled(Flex)`
   position: fixed;
   top: 0;
   left: 0;
@@ -19,11 +19,11 @@ export const FullPageContainer = styled(Flex)`
   overflow: hidden;
 `
 
-export const SideNavContainer = styled(Box)`
+const SideNavContainer = styled(Box)`
   height: 100%;
 `
 
-export const OutletContainer = styled(Box)`
+const OutletContainer = styled(Box)`
   padding: 1rem;
 `
 
