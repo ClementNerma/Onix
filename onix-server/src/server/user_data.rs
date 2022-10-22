@@ -77,7 +77,7 @@ static SLEEP_DURATION: Duration = Duration::from_secs(1);
 /// A loop looking for user data modifications before triggering the actual save
 pub async fn user_data_saver(state: WrappedState) -> ! {
     loop {
-        match { state.lock().await.user_data_saving_state } {
+        match get_saving_state(&state).await {
             UserDataSavingState::Unchanged => {
                 sleep(SLEEP_DURATION).await;
                 continue;
@@ -89,13 +89,8 @@ pub async fn user_data_saver(state: WrappedState) -> ! {
                     "State was modified, waiting for no modification until a delay..."
                 );
 
-                while { state.lock().await.user_data_saving_state } == UserDataSavingState::Modified
-                {
-                    {
-                        state.lock().await.user_data_saving_state =
-                            UserDataSavingState::WaitingForSave;
-                    }
-
+                while get_saving_state(&state).await == UserDataSavingState::Modified {
+                    set_saving_state(&state, UserDataSavingState::WaitingForSave).await;
                     sleep(SLEEP_DURATION).await;
                 }
 
@@ -124,4 +119,12 @@ pub async fn user_data_saver(state: WrappedState) -> ! {
             }
         }
     }
+}
+
+async fn get_saving_state(state: &WrappedState) -> UserDataSavingState {
+    state.lock().await.user_data_saving_state
+}
+
+async fn set_saving_state(state: &WrappedState, new_value: UserDataSavingState) {
+    state.lock().await.user_data_saving_state = new_value;
 }
