@@ -21,6 +21,7 @@ pub struct AppCreationInput {
 }
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
+#[graphql(complex)]
 pub struct App {
     pub id: AppId,
     pub name: String,

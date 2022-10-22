@@ -1,4 +1,4 @@
-use async_graphql::{Context, Object};
+use async_graphql::{ComplexObject, Context, Object};
 
 use crate::{
     apps::{App, AppId, AppRunningStatus},
@@ -41,6 +41,17 @@ impl QueryRoot {
         let state = &get_state(ctx).await;
 
         let runner = get_runner_for(&state, id).await?;
+
+        runner.status().await.map_err(CustomGraphQLError::from)
+    }
+}
+
+#[ComplexObject]
+impl App {
+    async fn fetched_status(&self, ctx: &Context<'_>) -> Result<AppRunningStatus> {
+        let state = &get_state(ctx).await;
+
+        let runner = get_runner_for(&state, self.id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
     }
