@@ -217,7 +217,7 @@ fn decode_container(summary: ContainerSummary) -> Result<ExistingContainer> {
         docker_container_id: summary.id.context("Missing ID")?,
         names: summary.names.context("Missing names")?,
         labels: summary.labels.context("Missing labels")?,
-        status: ExistingContainerStatus::decode(&summary.status.context("Missing status")?)?,
+        status: ExistingContainerStatus::decode(&summary.state.context("Missing status")?)?,
     })
 }
 
@@ -241,17 +241,14 @@ pub enum ExistingContainerStatus {
 
 impl ExistingContainerStatus {
     pub fn decode(input: &str) -> Result<Self> {
-        if input.starts_with("Up ") {
-            return Ok(Self::Running);
-        }
-
         match input {
-            "Created" => Ok(Self::Created),
-            "Restarting" => Ok(Self::Restarting),
-            "Removing" => Ok(Self::Removing),
-            "Paused" => Ok(Self::Paused),
-            "Exited" => Ok(Self::Exited),
-            "Dead" => Ok(Self::Dead),
+            "created" => Ok(Self::Created),
+            "running" => Ok(Self::Running),
+            "paused" => Ok(Self::Paused),
+            "restarting" => Ok(Self::Restarting),
+            "removing" => Ok(Self::Removing),
+            "exited" => Ok(Self::Exited),
+            "dead" => Ok(Self::Dead),
             _ => bail!("Invalid container status: {}", input),
         }
     }
