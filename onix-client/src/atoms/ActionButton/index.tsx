@@ -29,7 +29,7 @@ export const ActionButton = ({
   onStateChange,
   ...rest
 }: ActionButtonProps) => {
-  const dynIcon = state.error ? errorIcon ?? <MdError /> : loadingIcon ?? state.loading ? <Spinner /> : icon
+  const dynIcon = state.error ? errorIcon ?? <MdError /> : loadingIcon ?? state.loading ? <Spinner size="sm" /> : icon
 
   useEffect(() => {
     if (state.loading) {
