@@ -1,6 +1,5 @@
-import { Box, Heading } from '@chakra-ui/react'
+import { Box, Heading, Table, Tbody, Td, Tr } from '@chakra-ui/react'
 import { AppStatus } from '../../atoms/AppStatus'
-import { BorderedBox } from '../../atoms/BorderedBox'
 import { useAppPageQuery } from '../../graphql/generated'
 import { AppActions } from '../../molecules/AppActions'
 import { useParams } from '../../router'
@@ -24,12 +23,22 @@ export const AppPage = () => {
     <Box>
       <Heading size="lg">Application '{app.name}'</Heading>
 
-      <BorderedBox>
-        Status: <AppStatus status={app.fetchedStatus} />
-      </BorderedBox>
-      <BorderedBox>
-        Actions: <AppActions size="sm" appId={app.id} status={app.fetchedStatus} onFinished={() => refetch()} />
-      </BorderedBox>
+      <Table>
+        <Tbody>
+          <Tr>
+            <Td>Status</Td>
+            <Td>
+              <AppStatus status={app.fetchedStatus} />
+            </Td>
+          </Tr>
+          <Tr>
+            <Td>Actions</Td>
+            <Td>
+              <AppActions size="sm" appId={app.id} status={app.fetchedStatus} onFinished={() => refetch()} />
+            </Td>
+          </Tr>
+        </Tbody>
+      </Table>
     </Box>
   )
 }
