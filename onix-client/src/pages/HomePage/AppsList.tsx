@@ -11,8 +11,6 @@ export type AppsListProps = {
 }
 
 export const AppsList = ({ apps, onStateChange }: AppsListProps) => {
-  const [appStatuses, setAppStatuses] = useState<Record<string, AppRunningStatus>>({})
-
   return (
     <TableContainer>
       <Table variant="simple">
