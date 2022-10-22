@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { MdPlayArrow } from 'react-icons/md'
 import { useStartAppMutation } from '../../graphql/generated'
 import { ActionButton, ActionButtonState } from '../ActionButton'
@@ -11,16 +10,6 @@ export type StartAppButtonProps = {
 export const StartAppButton = ({ appId, onStateChange }: StartAppButtonProps) => {
   const [startApp, result] = useStartAppMutation()
 
-  useEffect(() => {
-    if (result.loading) {
-      onStateChange?.('loading')
-    } else if (result.error) {
-      onStateChange?.('failed')
-    } else if (result.data) {
-      onStateChange?.('done')
-    }
-  }, [result, onStateChange])
-
   return (
     <ActionButton
       icon={<MdPlayArrow />}
@@ -29,6 +18,7 @@ export const StartAppButton = ({ appId, onStateChange }: StartAppButtonProps) =>
       onClick={() => startApp({ variables: { id: appId } })}
       label="Start"
       state={result}
+      onStateChange={onStateChange}
     />
   )
 }

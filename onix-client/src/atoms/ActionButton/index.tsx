@@ -1,6 +1,6 @@
 import { MutationResult } from '@apollo/client'
 import { Button, ButtonProps, Spinner } from '@chakra-ui/react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MdError } from 'react-icons/md'
 
 export type ActionButtonProps = {
@@ -8,23 +8,38 @@ export type ActionButtonProps = {
   loadingIcon?: React.ReactElement
   errorIcon?: React.ReactElement
   label: string
-  state: ActionButtonState | MutationResult<unknown>
+  state: MutationResult<unknown>
   onClick: () => void
+  onStateChange?: (state: ActionButtonState) => void
 } & ButtonProps
 
-export type ActionButtonState = 'actionable' | 'loading' | 'failed' | 'done'
+export enum ActionButtonState {
+  Loading,
+  Failed,
+  Done,
+}
 
-export const ActionButton = ({ icon, loadingIcon, errorIcon, label, state, onClick, ...rest }: ActionButtonProps) => {
-  if (typeof state !== 'string') {
-    state = state.loading ? 'loading' : state.error ? 'failed' : state.data ? 'done' : 'actionable'
-  }
+export const ActionButton = ({
+  icon,
+  loadingIcon,
+  errorIcon,
+  label,
+  state,
+  onClick,
+  onStateChange,
+  ...rest
+}: ActionButtonProps) => {
+  const dynIcon = state.error ? errorIcon ?? <MdError /> : loadingIcon ?? state.loading ? <Spinner /> : icon
 
-  const dynIcon =
-    state === 'actionable' || state === 'done'
-      ? icon
-      : state === 'loading'
-      ? loadingIcon ?? <Spinner />
-      : errorIcon ?? <MdError />
+  useEffect(() => {
+    if (state.loading) {
+      onStateChange?.(ActionButtonState.Loading)
+    } else if (state.error) {
+      onStateChange?.(ActionButtonState.Failed)
+    } else if (state.data) {
+      onStateChange?.(ActionButtonState.Done)
+    }
+  }, [state, onStateChange])
 
   return (
     <Button

@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { MdStop } from 'react-icons/md'
 import { useStopAppMutation } from '../../graphql/generated'
 import { ActionButton, ActionButtonState } from '../ActionButton'
@@ -11,16 +10,6 @@ export type StopAppButtonProps = {
 export const StopAppButton = ({ appId, onStateChange }: StopAppButtonProps) => {
   const [stopApp, result] = useStopAppMutation()
 
-  useEffect(() => {
-    if (result.loading) {
-      onStateChange?.('loading')
-    } else if (result.error) {
-      onStateChange?.('failed')
-    } else if (result.data) {
-      onStateChange?.('done')
-    }
-  }, [result, onStateChange])
-
   return (
     <ActionButton
       icon={<MdStop />}
@@ -29,6 +18,7 @@ export const StopAppButton = ({ appId, onStateChange }: StopAppButtonProps) => {
       onClick={() => stopApp({ variables: { id: appId } })}
       label="Stop"
       state={result}
+      onStateChange={onStateChange}
     />
   )
 }
