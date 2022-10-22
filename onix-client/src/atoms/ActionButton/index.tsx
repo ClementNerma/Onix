@@ -41,13 +41,10 @@ export const ActionButton = ({
     }
   }, [state, onStateChange])
 
+  const isActive = !state.loading && !state.data
+
   return (
-    <Button
-      leftIcon={dynIcon}
-      onClick={() => state !== 'loading' && onClick()}
-      disabled={state === 'loading' || state === 'done'}
-      {...rest}
-    >
+    <Button leftIcon={dynIcon} onClick={onClick} disabled={!isActive} {...rest}>
       {label}
     </Button>
   )
