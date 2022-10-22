@@ -1,3 +1,4 @@
+import { ButtonProps } from '@chakra-ui/react'
 import { MdPlayArrow } from 'react-icons/md'
 import { useStartAppMutation } from '../../graphql/generated'
 import { ActionButton, ActionButtonState } from '../ActionButton'
@@ -5,9 +6,10 @@ import { ActionButton, ActionButtonState } from '../ActionButton'
 export type StartAppButtonProps = {
   appId: string
   onStateChange?: (state: ActionButtonState) => void
-}
+  onFinished?: (succeeded: boolean) => void
+} & Omit<ButtonProps, 'onClick'>
 
-export const StartAppButton = ({ appId, onStateChange }: StartAppButtonProps) => {
+export const StartAppButton = ({ appId, onStateChange, onFinished, ...rest }: StartAppButtonProps) => {
   const [startApp, result] = useStartAppMutation()
 
   return (
@@ -19,6 +21,8 @@ export const StartAppButton = ({ appId, onStateChange }: StartAppButtonProps) =>
       label="Start"
       state={result}
       onStateChange={onStateChange}
+      onFinished={onFinished}
+      {...rest}
     />
   )
 }

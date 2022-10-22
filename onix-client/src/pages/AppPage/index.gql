@@ -1,0 +1,6 @@
+query AppPage($id: String!) {
+  app(id: $id) {
+    ...App
+    fetchedStatus
+  }
+}

@@ -11,6 +11,7 @@ export type ActionButtonProps = {
   state: MutationResult<unknown>
   onClick: () => void
   onStateChange?: (state: ActionButtonState) => void
+  onFinished?: (succeeded: boolean) => void
 } & ButtonProps
 
 export enum ActionButtonState {
@@ -27,24 +28,30 @@ export const ActionButton = ({
   state,
   onClick,
   onStateChange,
+  onFinished,
   ...rest
 }: ActionButtonProps) => {
-  const dynIcon = state.error ? errorIcon ?? <MdError /> : loadingIcon ?? state.loading ? <Spinner size="sm" /> : icon
+  errorIcon ??= <MdError />
+  loadingIcon ??= <Spinner size="sm" />
+
+  const dynIcon = state.error ? errorIcon : state.loading ? loadingIcon : icon
 
   useEffect(() => {
     if (state.loading) {
       onStateChange?.(ActionButtonState.Loading)
     } else if (state.error) {
       onStateChange?.(ActionButtonState.Failed)
-    } else if (state.data) {
+      onFinished?.(false)
+    } else if (state.data !== null) {
       onStateChange?.(ActionButtonState.Done)
+      onFinished?.(true)
     }
   }, [state, onStateChange])
 
-  const isActive = !state.loading && !state.data
+  const isActive = !state.loading && !Boolean(state.data)
 
   return (
-    <Button leftIcon={dynIcon} onClick={onClick} disabled={!isActive} {...rest}>
+    <Button {...rest} leftIcon={dynIcon} onClick={onClick} disabled={!isActive}>
       {label}
     </Button>
   )

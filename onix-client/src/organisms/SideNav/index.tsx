@@ -1,5 +1,5 @@
 import { Button, List, ListItem } from '@chakra-ui/react'
-import { Route, useNavigate } from '../../routing'
+import { Route, useNavigate } from '../../router'
 
 export type SideNavProps = {
   items: SideNavItem[]
