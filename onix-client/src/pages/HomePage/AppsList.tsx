@@ -30,7 +30,7 @@ export const AppsList = ({ apps, onStateChange }: AppsListProps) => {
               <Td>{app.name}</Td>
               <Td>{app.containers.length}</Td>
               <Td>
-                <AppStatus status={app.fetchedStatus} />
+                <AppStatus size="lg" status={app.fetchedStatus} />
               </Td>
               <Td>
                 <HStack>
