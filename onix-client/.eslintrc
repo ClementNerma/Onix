@@ -4,13 +4,12 @@
     "project": "tsconfig.json",
     "sourceType": "module"
   },
-  "plugins": ["solid", "prettier"],
+  "plugins": ["prettier"],
   "extends": [
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:solid/typescript"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "root": true,
   "ignorePatterns": ["node_modules", "src/graphql/generated.ts"],
