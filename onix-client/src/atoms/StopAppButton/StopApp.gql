@@ -1,3 +1,3 @@
-mutation StopApp($id: AppId!) {
+mutation StopApp($id: String!) {
   stopApp(id: $id)
 }
