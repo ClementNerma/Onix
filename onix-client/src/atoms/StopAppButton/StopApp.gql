@@ -1,0 +1,3 @@
+mutation StopApp($id: AppId!) {
+  stopApp(id: $id)
+}

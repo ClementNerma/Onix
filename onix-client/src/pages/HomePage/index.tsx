@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react'
 import { AppsList } from './AppsList'
 
 export function HomePage() {
-  const { data, loading, error } = useHomePageQuery()
+  const { data, loading, error, refetch } = useHomePageQuery()
 
   if (error) {
     return <h2>Failed: {error.message}</h2>
@@ -15,7 +15,7 @@ export function HomePage() {
 
   return (
     <Box>
-      <AppsList apps={data.apps} />
+      <AppsList apps={data.apps} onStateChange={(state) => (state === 'done' || state === 'failed') && refetch()} />
     </Box>
   )
 }

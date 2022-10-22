@@ -1,5 +1,6 @@
 query HomePage {
   apps {
     ...App
+    fetchedStatus
   }
 }
