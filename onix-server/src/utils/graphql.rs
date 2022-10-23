@@ -33,7 +33,27 @@ impl Into<async_graphql::Error> for CustomGraphQLError {
 #[macro_export]
 macro_rules! graphql_enum {
     ($(#[$base:meta])* $(graphql_attr($(#[$outer:meta])*))? pub enum $name:ident { $($(#[$inner:meta])* $pat_name:ident $({ $($field_name:ident: $field_type: ty),* $(,)? })?),+ $(,)? }) => {
-        ::paste::paste! {
+        ::paste::paste! { #[allow(non_snake_case)] mod [<_graphql_module_ $name>] {
+
+        use ::std::borrow::Cow;
+
+        use ::async_graphql::{
+            SimpleObject, InputObject,
+            Union, OneofObject,
+            InputType, OutputType,
+
+            Value,
+            ContextSelectionSet,
+            ServerResult,
+            Positioned,
+            InputValueResult,
+            InputValueError,
+
+            registry::Registry,
+            parser::types::Field,
+        };
+
+        use ::serde::{Serialize, Deserialize};
 
         #[derive(Debug, Clone)]
         $(#[$base])*
@@ -63,7 +83,7 @@ macro_rules! graphql_enum {
             }
         }
 
-        #[derive(::async_graphql::Union, ::async_graphql::OneofObject, ::serde::Serialize, Debug, Clone)]
+        #[derive(Union, OneofObject, Serialize, Debug, Clone)]
         #[graphql(input_name_suffix = "Input")]
         $($(#[$outer])*)?
         pub enum [<$name GraphQL>] {
@@ -102,40 +122,40 @@ macro_rules! graphql_enum {
         }
 
         #[::async_trait::async_trait]
-        impl ::async_graphql::OutputType for $name {
+        impl OutputType for $name {
             fn type_name() -> ::std::borrow::Cow<'static, str> {
-                <[<$name GraphQL> ] as ::async_graphql::OutputType>::type_name()
+                <[<$name GraphQL> ] as OutputType>::type_name()
             }
 
-            fn create_type_info(registry: &mut ::async_graphql::registry::Registry) -> String {
-                <[<$name GraphQL> ] as ::async_graphql::OutputType>::create_type_info(registry)
+            fn create_type_info(registry: &mut Registry) -> String {
+                <[<$name GraphQL> ] as OutputType>::create_type_info(registry)
             }
 
             async fn resolve(
                 &self,
-                ctx: &::async_graphql::ContextSelectionSet<'_>,
-                field: &::async_graphql::Positioned<::async_graphql::parser::types::Field>,
-            ) -> ::async_graphql::ServerResult<::async_graphql::Value> {
-                <[<$name GraphQL>] as ::async_graphql::OutputType>::resolve(&self.encode_cloned(), ctx, field).await
+                ctx: &ContextSelectionSet<'_>,
+                field: &Positioned<Field>,
+            ) -> ServerResult<Value> {
+                <[<$name GraphQL>] as OutputType>::resolve(&self.encode_cloned(), ctx, field).await
             }
         }
 
-        impl ::async_graphql::InputType for $name {
+        impl InputType for $name {
             type RawValueType = Self;
 
-            fn type_name() -> ::std::borrow::Cow<'static, str> {
+            fn type_name() -> Cow<'static, str> {
                 let base_name = <[<$name GraphQL>] as InputType>::type_name();
                 format!("{base_name}Input").into()
             }
 
-            fn create_type_info(registry: &mut async_graphql::registry::Registry) -> String {
+            fn create_type_info(registry: &mut Registry) -> String {
                 <[<$name GraphQL>] as InputType>::create_type_info(registry)
             }
 
-            fn parse(value: Option<async_graphql::Value>) -> async_graphql::InputValueResult<Self> {
+            fn parse(value: Option<async_graphql::Value>) -> InputValueResult<Self> {
                 <[<$name GraphQL>] as InputType>::parse(value)
                     .map([<$name GraphQL>]::decode)
-                    .map_err(::async_graphql::InputValueError::propagate)
+                    .map_err(InputValueError::propagate)
             }
 
             fn to_value(&self) -> async_graphql::Value {
@@ -148,11 +168,15 @@ macro_rules! graphql_enum {
         }
 
         }
+
+        pub use [<_graphql_module_ $name>]::*;
+
+        }
     };
 
     (@internal[struct_decl] $name:ident $pat_name: ident => $($inner:meta)* => $($field_name:ident : $field_type:ty),+) => {
         ::paste::paste! {
-            #[derive(::async_graphql::SimpleObject, ::async_graphql::InputObject, ::serde::Serialize, Debug, Clone)]
+            #[derive(SimpleObject, InputObject, Serialize, Debug, Clone)]
             #[graphql(input_name_suffix = "Input")]
             $(#[$inner])*
             pub struct [<$name $pat_name GraphQL>] {
@@ -163,7 +187,7 @@ macro_rules! graphql_enum {
 
     (@internal[struct_decl] $name:ident $pat_name: ident => $($inner:meta)* =>) => {
         ::paste::paste! {
-            #[derive(::async_graphql::SimpleObject, ::async_graphql::InputObject, ::serde::Serialize, Debug, Clone)]
+            #[derive(SimpleObject, InputObject, Serialize, Debug, Clone)]
             #[graphql(input_name_suffix = "Input")]
             $(#[$inner])*
             pub struct [<$name $pat_name GraphQL>] {

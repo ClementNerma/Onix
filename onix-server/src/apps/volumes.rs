@@ -1,4 +1,4 @@
-use async_graphql::{InputObject, InputType, SimpleObject};
+use async_graphql::{InputObject, SimpleObject};
 use serde::{Deserialize, Serialize};
 
 use crate::graphql_enum;
