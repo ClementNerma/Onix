@@ -11,7 +11,7 @@ use futures::future::try_join_all;
 use log::info;
 
 use crate::{
-    apps::volumes::AppVolume,
+    apps::volumes::AppVolumeType,
     docker::{
         self, ContainerCreationConfig, ContainerMount, ContainerRestartPolicy,
         ExistingContainerStatus, APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL,
@@ -170,6 +170,21 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
         Ok(())
     }
 
+    pub async fn get_container_infos(
+        &self,
+        container: &AppContainer,
+    ) -> Result<Option<ExistingAppContainer>> {
+        assert_eq!(self.app.id, container.app.id, "Assertion error: cannot get the status of a container which does not belong to the provided application");
+
+        let containers = self.list_existing_containers().await?;
+
+        let infos = containers
+            .into_iter()
+            .find(|c| c.container_id == container.id);
+
+        Ok(infos)
+    }
+
     pub async fn start(&self) -> Result<()> {
         match self.status().await? {
             AppRunningStatus::NotCreated => bail!("Application's containers are not created yet"),
@@ -286,22 +301,22 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
 
         let container_identity = container.identity();
 
-        for (name, volume) in &container.volumes {
-            match volume {
-                AppVolume::Disposable | AppVolume::Internal => {
-                    anon_volumes.push(name.clone());
+        for volume in &container.volumes {
+            match &volume.variant {
+                AppVolumeType::Disposable | AppVolumeType::Internal => {
+                    anon_volumes.push(volume.name.clone());
                 }
 
-                AppVolume::External {
+                AppVolumeType::External {
                     container_path,
                     readonly,
                 } => mounts.push(ContainerMount {
-                    in_host: self.env.app_container_internal_volume_dir( &container_identity, name).to_str().expect("Internal error: normalized app container's internal volume path contains invalid UTF-8 characters").to_string(),
+                    in_host: self.env.app_container_internal_volume_dir( &container_identity, &volume.name).to_str().expect("Internal error: normalized app container's internal volume path contains invalid UTF-8 characters").to_string(),
                     in_container: container_path.clone(),
                     readonly: *readonly,
                 }),
 
-                AppVolume::BindToPath {
+                AppVolumeType::BindToPath {
                     real_path,
                     container_path,
                     readonly,

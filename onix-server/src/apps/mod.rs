@@ -6,9 +6,11 @@ mod runner;
 mod volumes;
 
 pub use app::{App, AppCreationInput, AppId};
-pub use containers::AppContainerId;
+pub use containers::{AppContainer, AppContainerId};
 pub use env::{AppRunnerConfig, AppRunnerEnvironment};
+pub use existing_containers::ExistingAppContainer;
 pub use runner::{AppRunner, AppRunningStatus};
+pub use volumes::AppVolume;
 
 use once_cell::sync::Lazy;
 use pomsky_macro::pomsky;

@@ -1,10 +1,18 @@
+use async_graphql::{InputObject, InputType, SimpleObject};
 use serde::{Deserialize, Serialize};
 
 use crate::graphql_enum;
 
+#[derive(SimpleObject, InputObject, Serialize, Deserialize, Clone)]
+#[graphql(input_name = "AppVolumeInput")]
+pub struct AppVolume {
+    pub name: String,
+    pub variant: AppVolumeType,
+}
+
 graphql_enum!(
     #[derive(Serialize, Deserialize)]
-    pub enum AppVolume {
+    pub enum AppVolumeType {
         /// Volume that could be dropped without any real datal loss
         /// (e.g. cache or unimportant configuration files)
         Disposable,

@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{bail, Result};
-use async_graphql::{ComplexObject, InputObject, SimpleObject};
+use async_graphql::{InputObject, SimpleObject};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -16,11 +16,7 @@ use crate::{
     utils::time::get_now,
 };
 
-use super::{
-    app::AppIdentity,
-    volumes::{AppVolume, AppVolumeGraphQL},
-    NAME_VALIDATOR,
-};
+use super::{app::AppIdentity, volumes::AppVolume, NAME_VALIDATOR};
 
 #[derive(InputObject, Deserialize)]
 pub struct AppContainerCreationInput {
@@ -28,11 +24,12 @@ pub struct AppContainerCreationInput {
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
     pub port_bindings: Vec<ContainerPortBinding>,
-    pub volumes: BTreeMap<String, AppVolume>,
+    pub volumes: Vec<AppVolume>,
     pub depends_on: HashSet<String>,
 }
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
+#[graphql(complex)]
 pub struct AppContainer {
     pub app: AppIdentity,
     pub id: AppContainerId,
@@ -40,22 +37,9 @@ pub struct AppContainer {
     pub image: String,
     pub env_vars: BTreeMap<String, String>,
     pub port_bindings: Vec<ContainerPortBinding>,
-
-    #[graphql(skip)]
-    pub volumes: BTreeMap<String, AppVolume>,
-
+    pub volumes: Vec<AppVolume>,
     pub depends_on: HashSet<String>,
     created_on: OffsetDateTime,
-}
-
-#[ComplexObject]
-impl AppContainer {
-    pub async fn volumes(&self) -> BTreeMap<String, AppVolumeGraphQL> {
-        self.volumes
-            .iter()
-            .map(|(name, volume)| (name.clone(), volume.encode_cloned()))
-            .collect()
-    }
 }
 
 impl AppContainer {

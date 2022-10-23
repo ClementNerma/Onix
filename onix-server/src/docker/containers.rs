@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::{bail, Context, Result};
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::{Enum, InputObject, SimpleObject};
 use bollard::{
     container::{Config, CreateContainerOptions, ListContainersOptions},
     models::Mount,
@@ -228,7 +228,7 @@ pub struct ExistingContainer {
     pub status: ExistingContainerStatus,
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(Enum, PartialEq, Eq, Clone, Copy)]
 pub enum ExistingContainerStatus {
     Created,
     Restarting,

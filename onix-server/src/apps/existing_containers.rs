@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use async_graphql::SimpleObject;
 
 use crate::docker::{
     ExistingContainer, ExistingContainerStatus, APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL,
@@ -7,8 +8,10 @@ use crate::docker::{
 
 use super::{AppContainerId, AppId};
 
+#[derive(SimpleObject)]
 pub struct ExistingAppContainer {
     pub docker_container_id: String,
+    pub docker_container_name: String,
     pub app_id: AppId,
     pub app_name: String,
     pub container_id: AppContainerId,
@@ -29,7 +32,15 @@ impl ExistingAppContainer {
             return Ok(None);
         }
 
-        if !names[0].starts_with(NAME_PREFIX) && !names[0].starts_with(&format!("/{NAME_PREFIX}")) {
+        let name = &names[0];
+
+        let docker_container_name = if let Some(name) = name.strip_prefix("/") {
+            name.to_string()
+        } else {
+            name.to_string()
+        };
+
+        if !docker_container_name.starts_with(NAME_PREFIX) {
             return Ok(None);
         }
 
@@ -58,6 +69,7 @@ impl ExistingAppContainer {
 
         Ok(Some(Self {
             docker_container_id,
+            docker_container_name,
             app_id,
             app_name,
             container_id,

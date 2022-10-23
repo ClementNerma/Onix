@@ -1,7 +1,7 @@
 use async_graphql::{ComplexObject, Context, Object};
 
 use crate::{
-    apps::{App, AppId, AppRunningStatus},
+    apps::{App, AppContainer, AppId, AppRunningStatus, ExistingAppContainer},
     docker,
     utils::graphql::{CustomGraphQLError, Result},
 };
@@ -39,7 +39,6 @@ impl QueryRoot {
 
     async fn app_status(&self, ctx: &Context<'_>, id: AppId) -> Result<AppRunningStatus> {
         let state = &get_state(ctx).await;
-
         let runner = get_runner_for(&state, id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
@@ -50,9 +49,21 @@ impl QueryRoot {
 impl App {
     async fn fetched_status(&self, ctx: &Context<'_>) -> Result<AppRunningStatus> {
         let state = &get_state(ctx).await;
-
         let runner = get_runner_for(&state, self.id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
+    }
+}
+
+#[ComplexObject]
+impl AppContainer {
+    async fn docker_container(&self, ctx: &Context<'_>) -> Result<Option<ExistingAppContainer>> {
+        let state = &get_state(ctx).await;
+        let runner = get_runner_for(&state, self.app.id).await?;
+
+        runner
+            .get_container_infos(&self)
+            .await
+            .map_err(CustomGraphQLError::from)
     }
 }
