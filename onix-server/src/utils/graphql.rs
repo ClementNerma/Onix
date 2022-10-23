@@ -33,6 +33,8 @@ impl Into<async_graphql::Error> for CustomGraphQLError {
 #[macro_export]
 macro_rules! graphql_enum {
     ($(#[$base:meta])* $(graphql_attr($(#[$outer:meta])*))? pub enum $name:ident { $($(#[$inner:meta])* $pat_name:ident $({ $($field_name:ident: $field_type: ty),* $(,)? })?),+ $(,)? }) => {
+        ::paste::paste! {
+
         #[derive(Debug, Clone)]
         $(#[$base])*
         pub enum $name {
@@ -44,15 +46,15 @@ macro_rules! graphql_enum {
         }
 
         impl $name {
-            pub fn encode(self) -> ::paste::paste! { [<$name GraphQL>] } {
+            pub fn encode(self) -> [<$name GraphQL>] {
                 match self {
-                    $($name::$pat_name $({ $($field_name),+ })? => ::paste::paste! {
+                    $($name::$pat_name $({ $($field_name),+ })? =>
                         [<$name GraphQL>]::$pat_name($crate::graphql_enum!(@internal[args] $name $pat_name => $($($field_name),+)?))
-                    }),+
+                    ),+
                 }
             }
 
-            pub fn encode_cloned(&self) -> ::paste::paste! { [<$name GraphQL>] } {
+            pub fn encode_cloned(&self) -> [<$name GraphQL>] {
                 match self {
                     $($name::$pat_name $({ $($field_name),+ })? => ::paste::paste! {
                         [<$name GraphQL>]::$pat_name($crate::graphql_enum!(@internal[args_with_clone] $name $pat_name => $($($field_name),+)?))
@@ -61,24 +63,22 @@ macro_rules! graphql_enum {
             }
         }
 
-        ::paste::paste! {
-            #[derive(::async_graphql::Union, ::async_graphql::OneofObject, ::serde::Serialize, Debug, Clone)]
-            #[graphql(input_name_suffix = "Input")]
-            $($(#[$outer])*)?
-            pub enum [<$name GraphQL>] {
-                $($pat_name([<$name $pat_name GraphQL>])),+
+        #[derive(::async_graphql::Union, ::async_graphql::OneofObject, ::serde::Serialize, Debug, Clone)]
+        #[graphql(input_name_suffix = "Input")]
+        $($(#[$outer])*)?
+        pub enum [<$name GraphQL>] {
+            $($pat_name([<$name $pat_name GraphQL>])),+
+        }
+
+        impl [<$name GraphQL>] {
+            #[allow(dead_code)]
+            pub fn decode(self) -> $name {
+                self.into()
             }
 
-            impl [<$name GraphQL>] {
-                #[allow(dead_code)]
-                pub fn decode(self) -> $name {
-                    self.into()
-                }
-
-                #[allow(dead_code)]
-                pub fn decode_cloned(&self) -> $name {
-                    self.clone().into()
-                }
+            #[allow(dead_code)]
+            pub fn decode_cloned(&self) -> $name {
+                self.clone().into()
             }
         }
 
@@ -86,13 +86,13 @@ macro_rules! graphql_enum {
             $crate::graphql_enum!(@internal[struct_decl] $name $pat_name => $($inner)+ => $($($field_name: $field_type),*)?);
         )+
 
-        impl From<$name> for ::paste::paste! { [<$name GraphQL>] } {
+        impl From<$name> for [<$name GraphQL>] {
             fn from(from: $name) -> Self {
                 from.encode()
             }
         }
 
-        impl Into<$name> for ::paste::paste! { [<$name GraphQL>] } {
+        impl Into<$name> for [<$name GraphQL>] {
             fn into(self) -> $name {
                 #[allow(unused_variables)]
                 match self {
@@ -104,11 +104,11 @@ macro_rules! graphql_enum {
         #[::async_trait::async_trait]
         impl ::async_graphql::OutputType for $name {
             fn type_name() -> ::std::borrow::Cow<'static, str> {
-                ::paste::paste! { <[<$name GraphQL> ] as ::async_graphql::OutputType>::type_name() }
+                <[<$name GraphQL> ] as ::async_graphql::OutputType>::type_name()
             }
 
             fn create_type_info(registry: &mut ::async_graphql::registry::Registry) -> String {
-                ::paste::paste! { <[<$name GraphQL> ] as ::async_graphql::OutputType>::create_type_info(registry) }
+                <[<$name GraphQL> ] as ::async_graphql::OutputType>::create_type_info(registry)
             }
 
             async fn resolve(
@@ -116,7 +116,7 @@ macro_rules! graphql_enum {
                 ctx: &::async_graphql::ContextSelectionSet<'_>,
                 field: &::async_graphql::Positioned<::async_graphql::parser::types::Field>,
             ) -> ::async_graphql::ServerResult<::async_graphql::Value> {
-                <::paste::paste! { [<$name GraphQL> ] } as ::async_graphql::OutputType>::resolve(&self.encode_cloned(), ctx, field).await
+                <[<$name GraphQL>] as ::async_graphql::OutputType>::resolve(&self.encode_cloned(), ctx, field).await
             }
         }
 
@@ -124,29 +124,29 @@ macro_rules! graphql_enum {
             type RawValueType = Self;
 
             fn type_name() -> ::std::borrow::Cow<'static, str> {
-                let base_name = ::paste::paste! { <[<$name GraphQL>] as InputType>::type_name() };
+                let base_name = <[<$name GraphQL>] as InputType>::type_name();
                 format!("{base_name}Input").into()
             }
 
             fn create_type_info(registry: &mut async_graphql::registry::Registry) -> String {
-                ::paste::paste! { <[<$name GraphQL>] as InputType>::create_type_info(registry) }
+                <[<$name GraphQL>] as InputType>::create_type_info(registry)
             }
 
             fn parse(value: Option<async_graphql::Value>) -> async_graphql::InputValueResult<Self> {
-                ::paste::paste! {
-                    <[<$name GraphQL>] as InputType>::parse(value)
-                        .map([<$name GraphQL>]::decode)
-                        .map_err(::async_graphql::InputValueError::propagate)
-                }
+                <[<$name GraphQL>] as InputType>::parse(value)
+                    .map([<$name GraphQL>]::decode)
+                    .map_err(::async_graphql::InputValueError::propagate)
             }
 
             fn to_value(&self) -> async_graphql::Value {
-                ::paste::paste! { <[<$name GraphQL>] as InputType>::to_value(&self.encode_cloned()) }
+                <[<$name GraphQL>] as InputType>::to_value(&self.encode_cloned())
             }
 
             fn as_raw_value(&self) -> Option<&Self::RawValueType> {
                 Some(self)
             }
+        }
+
         }
     };
 
