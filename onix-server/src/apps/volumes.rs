@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::graphql_enum;
 
 #[derive(SimpleObject, InputObject, Serialize, Deserialize, Clone)]
-#[graphql(input_name = "AppVolumeInput")]
+#[graphql(input_name_suffix = "Input")]
 pub struct AppVolume {
     pub name: String,
     pub variant: AppVolumeType,

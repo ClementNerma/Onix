@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(
     SimpleObject, InputObject, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
 )]
-#[graphql(input_name = "PortInput")]
+#[graphql(input_name_suffix = "Input")]
 pub struct Port {
     pub port: u16,
     pub port_type: PortType,

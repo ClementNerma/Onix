@@ -145,7 +145,7 @@ pub struct ContainerCreationConfig {
 #[derive(
     SimpleObject, InputObject, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
 )]
-#[graphql(input_name = "ContainerPortBindingInput")]
+#[graphql(input_name_suffix = "Input")]
 pub struct ContainerPortBinding {
     pub host_port: Port,
     pub container_port: Port,

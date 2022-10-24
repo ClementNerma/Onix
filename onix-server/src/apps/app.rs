@@ -123,7 +123,7 @@ impl App {
 declare_id_type!(AppId);
 
 #[derive(SimpleObject, InputObject, Serialize, Deserialize, Hash, Clone, PartialEq, Eq)]
-#[graphql(input_name = "AppIdentityInput")]
+#[graphql(input_name_suffix = "Input")]
 pub struct AppIdentity {
     pub id: AppId,
     pub name: String,
