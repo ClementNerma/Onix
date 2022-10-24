@@ -1,14 +1,14 @@
 import { Heading, HStack, IconButton } from '@chakra-ui/react'
 import { MdDelete } from 'react-icons/md'
 import { BoxedStack } from '../../atoms/BoxedStack'
-import { AppContainerCreationInput } from '../../graphql/generated'
+import { AppContainerTemplateInput } from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
 import { ContainerEnvVars } from './ContainerEnvVars'
 import { ContainerPortBindings } from './ContainerPortBindings'
 
 export type CreateAppContainerProps = {
-  state: AppContainerCreationInput
-  onChange: (state: AppContainerCreationInput) => void
+  state: AppContainerTemplateInput
+  onChange: (state: AppContainerTemplateInput) => void
   onRemove: () => void
 }
 

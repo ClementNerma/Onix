@@ -1,11 +1,11 @@
 import { TableContainer, Table, Thead, Tr, Th, Tbody, Td, Input, IconButton, Button } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { MdAdd, MdDelete } from 'react-icons/md'
-import { AppContainerCreationInput, ContainerEnvironmentVarInput } from '../../graphql/generated'
+import { AppContainerTemplateInput, ContainerEnvironmentVarInput } from '../../graphql/generated'
 
 export type ContainerEnvVarsProps = {
-  state: AppContainerCreationInput['envVars']
-  onChange: (state: AppContainerCreationInput['envVars']) => void
+  state: AppContainerTemplateInput['envVars']
+  onChange: (state: AppContainerTemplateInput['envVars']) => void
 }
 
 export const ContainerEnvVars = ({ state, onChange }: ContainerEnvVarsProps) => {

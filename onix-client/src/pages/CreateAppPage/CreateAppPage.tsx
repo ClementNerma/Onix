@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { MdAdd } from 'react-icons/md'
 import { IoIosRocket } from 'react-icons/io'
 import { BoxedStack } from '../../atoms/BoxedStack'
-import { AppContainerCreationInput, useCreateAppMutation } from '../../graphql/generated'
+import { AppContainerTemplateInput, useCreateAppMutation } from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
 import { CreateAppContainer } from './CreateAppContainer'
 import { ActionButton } from '../../atoms/ActionButton'
@@ -13,7 +13,7 @@ export const CreateAppPage = () => {
   const [createApp, creatingApp] = useCreateAppMutation()
 
   const [appName, setAppName] = useState('')
-  const [appContainers, setAppContainers] = useState<AppContainerCreationInput[]>([])
+  const [appContainers, setAppContainers] = useState<AppContainerTemplateInput[]>([])
 
   const navigate = useNavigate()
   const toast = useToast()
@@ -46,7 +46,7 @@ export const CreateAppPage = () => {
   }, [creatingApp, toast, navigate])
 
   const updateContainerInput = useCallback(
-    (state: AppContainerCreationInput, index: number) => {
+    (state: AppContainerTemplateInput, index: number) => {
       setAppContainers([...appContainers.slice(0, index), state, ...appContainers.slice(index + 1)])
     },
     [appContainers, setAppContainers],

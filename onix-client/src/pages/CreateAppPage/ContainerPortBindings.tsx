@@ -1,11 +1,11 @@
 import { TableContainer, Table, Thead, Tr, Th, Tbody, Td, Input, IconButton, Button, Select } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { MdAdd, MdDelete } from 'react-icons/md'
-import { AppContainerCreationInput, ContainerPortBindingInput, PortInput, PortType } from '../../graphql/generated'
+import { AppContainerTemplateInput, ContainerPortBindingInput, PortInput, PortType } from '../../graphql/generated'
 
 export type ContainerPortBindingsProps = {
-  state: AppContainerCreationInput['portBindings']
-  onChange: (state: AppContainerCreationInput['portBindings']) => void
+  state: AppContainerTemplateInput['portBindings']
+  onChange: (state: AppContainerTemplateInput['portBindings']) => void
 }
 
 export const ContainerPortBindings = ({ state, onChange }: ContainerPortBindingsProps) => {
