@@ -1,25 +1,18 @@
 #![forbid(unsafe_code)]
 #![forbid(unused_must_use)]
 
-mod apps;
-mod cmd;
-mod data;
-mod docker;
-mod saving;
-mod server;
-mod stores;
-mod utils;
-
-use self::cmd::Cmd;
-use self::utils::time::get_now;
+use onix_server::{
+    apps::AppRunnerConfig,
+    cmd::Cmd,
+    saving::{save_user_data, try_load_user_data},
+    server::{self, StateConfig},
+    utils::time::get_now,
+};
 
 use anyhow::{Context, Result};
-use apps::AppRunnerConfig;
 use bollard::Docker;
 use clap::Parser;
 use log::{info, LevelFilter};
-use saving::{save_user_data, try_load_user_data};
-use server::StateConfig;
 
 #[tokio::main]
 async fn main() {

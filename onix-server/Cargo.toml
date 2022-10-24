@@ -2,6 +2,15 @@
 name = "onix-server"
 version = "0.1.0"
 edition = "2021"
+default-run = "onix-server"
+
+[[bin]]
+name = "onix-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "onix-pack-store"
+path = "src/bin/store_packer.rs"
 
 [dependencies]
 anyhow = "1.0.65"
