@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.65"
-async-graphql = { version = "4.0.15", default-features = false, features = ["time", "log"] }
-async-graphql-axum = "4.0.15"
+async-graphql = { path = "../../async-graphql-fork", default-features = false, features = ["time", "log"] }
+async-graphql-axum = { path = "../../async-graphql-fork/integrations/axum" }
 async-trait = "0.1.58"
 axum = "0.5.16"
 base62 = "2.0.2"

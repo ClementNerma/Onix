@@ -63,6 +63,7 @@ macro_rules! graphql_enum {
 
         ::paste::paste! {
             #[derive(::async_graphql::Union, ::async_graphql::OneofObject, ::serde::Serialize, Debug, Clone)]
+            #[graphql(input_name_suffix = "Input")]
             $($(#[$outer])*)?
             pub enum [<$name GraphQL>] {
                 $($pat_name([<$name $pat_name GraphQL>])),+
@@ -147,11 +148,12 @@ macro_rules! graphql_enum {
                 Some(self)
             }
         }
-   };
+    };
 
     (@internal[struct_decl] $name:ident $pat_name: ident => $($inner:meta)* => $($field_name:ident : $field_type:ty),+) => {
         ::paste::paste! {
             #[derive(::async_graphql::SimpleObject, ::async_graphql::InputObject, ::serde::Serialize, Debug, Clone)]
+            #[graphql(input_name_suffix = "Input")]
             $(#[$inner])*
             pub struct [<$name $pat_name GraphQL>] {
                 $($field_name: $field_type),+
@@ -162,6 +164,7 @@ macro_rules! graphql_enum {
     (@internal[struct_decl] $name:ident $pat_name: ident => $($inner:meta)* =>) => {
         ::paste::paste! {
             #[derive(::async_graphql::SimpleObject, ::async_graphql::InputObject, ::serde::Serialize, Debug, Clone)]
+            #[graphql(input_name_suffix = "Input")]
             $(#[$inner])*
             pub struct [<$name $pat_name GraphQL>] {
                 __empty: $crate::utils::graphql::Void
