@@ -49,8 +49,8 @@ graphql_enum!(
 
         /// Binding to a real directory
         BindToPath {
+            host_path: String,
             container_path: String,
-            real_path: String,
             readonly: bool,
         },
         // TODO: /// Binding to a global path

@@ -332,11 +332,11 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
                 }),
 
                 AppVolumeType::BindToPath {
-                    real_path,
+                    host_path,
                     container_path,
                     readonly,
                 } => mounts.push(ContainerMount {
-                    in_host: real_path.clone(),
+                    in_host: host_path.clone(),
                     in_container: container_path.clone(),
                     readonly: *readonly
                 }),
