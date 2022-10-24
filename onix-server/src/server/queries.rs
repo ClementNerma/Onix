@@ -53,6 +53,14 @@ impl App {
 
         runner.status().await.map_err(CustomGraphQLError::from)
     }
+
+    async fn generate_template(&self, ctx: &Context<'_>) -> Result<String> {
+        let state = &get_state(ctx).await;
+        let runner = get_runner_for(&state, self.id).await?;
+
+        Ok(serde_yaml::to_string(&runner.generate_app_template())
+            .expect("Assertion error: failed to convert application template to YAML string"))
+    }
 }
 
 #[ComplexObject]

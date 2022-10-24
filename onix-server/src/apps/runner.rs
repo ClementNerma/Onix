@@ -11,7 +11,7 @@ use futures::future::try_join_all;
 use log::info;
 
 use crate::{
-    apps::volumes::AppVolumeType,
+    apps::AppVolumeType,
     docker::{
         self, ContainerCreationConfig, ContainerMount, ContainerRestartPolicy,
         ExistingContainerStatus, APP_ID_LABEL, APP_NAME_LABEL, CONTAINER_ID_LABEL,
@@ -21,7 +21,7 @@ use crate::{
 
 use super::{
     app::App, containers::AppContainer, env::AppRunnerEnvironment,
-    existing_containers::ExistingAppContainer,
+    existing_containers::ExistingAppContainer, AppTemplate,
 };
 
 pub struct AppRunner<'a, 'b, 'c> {
@@ -296,6 +296,10 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
         }
 
         Ok(())
+    }
+
+    pub fn generate_app_template(&self) -> AppTemplate {
+        self.app.clone().to_template()
     }
 
     fn generate_container_config(&self, container: &AppContainer) -> ContainerCreationConfig {

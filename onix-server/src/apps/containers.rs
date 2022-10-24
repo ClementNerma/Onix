@@ -1,7 +1,7 @@
 use std::{hash::Hash, marker::PhantomData};
 
 use anyhow::{bail, Result};
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::SimpleObject;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -12,17 +12,7 @@ use crate::{
     utils::time::get_now,
 };
 
-use super::{app::AppIdentity, volumes::AppVolume, NAME_VALIDATOR};
-
-#[derive(InputObject, Deserialize)]
-pub struct AppContainerCreationInput {
-    pub name: String,
-    pub image: String,
-    pub env_vars: Vec<ContainerEnvironmentVar>,
-    pub port_bindings: Vec<ContainerPortBinding>,
-    pub volumes: Vec<AppVolume>,
-    pub depends_on: Vec<String>,
-}
+use super::{app::AppIdentity, AppContainerTemplate, AppVolume, NAME_VALIDATOR};
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
 #[graphql(complex)]
@@ -39,7 +29,7 @@ pub struct AppContainer {
 }
 
 impl AppContainer {
-    pub fn new(app: AppIdentity, input: AppContainerCreationInput) -> Result<Self> {
+    pub fn new(app: AppIdentity, input: AppContainerTemplate) -> Result<Self> {
         if input.name.trim().is_empty() {
             bail!("Please provide a non-empty name for this container")
         }
@@ -97,7 +87,7 @@ impl AppContainer {
         }
 
         #[deny(unused_variables)]
-        let AppContainerCreationInput {
+        let AppContainerTemplate {
             name,
             image,
             env_vars,
@@ -130,6 +120,31 @@ impl AppContainer {
 
     pub fn docker_container_name(&self) -> String {
         format!("{NAME_PREFIX}{}_{}", self.app.id.encode(), self.id.encode())
+    }
+
+    pub fn to_template(self) -> AppContainerTemplate {
+        #[deny(unused_variables)]
+        let Self {
+            name,
+            image,
+            env_vars,
+            port_bindings,
+            volumes,
+            depends_on,
+
+            app: _,
+            id: _,
+            created_on: _,
+        } = self;
+
+        AppContainerTemplate {
+            name,
+            image,
+            env_vars,
+            port_bindings,
+            volumes,
+            depends_on,
+        }
     }
 }
 

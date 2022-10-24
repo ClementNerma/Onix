@@ -9,16 +9,9 @@ use time::OffsetDateTime;
 use crate::{declare_id_type, docker::ExistingContainer, utils::time::get_now};
 
 use super::{
-    containers::{AppContainer, AppContainerCreationInput},
-    existing_containers::ExistingAppContainer,
+    containers::AppContainer, existing_containers::ExistingAppContainer, AppTemplate,
     NAME_VALIDATOR,
 };
-
-#[derive(InputObject, Deserialize)]
-pub struct AppCreationInput {
-    pub name: String,
-    pub containers: Vec<AppContainerCreationInput>,
-}
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
 #[graphql(complex)]
@@ -30,7 +23,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(input: AppCreationInput) -> Result<Self> {
+    pub fn new(input: AppTemplate) -> Result<Self> {
         if !NAME_VALIDATOR.is_match(&input.name) {
             bail!(
                 "Invalid name, please follow regex: {}",
@@ -39,7 +32,7 @@ impl App {
         }
 
         #[deny(unused_variables)]
-        let AppCreationInput { name, containers } = input;
+        let AppTemplate { name, containers } = input;
 
         let mut app = Self {
             id: AppId(rand::thread_rng().gen()),
@@ -116,6 +109,25 @@ impl App {
         match container {
             Some(container) if container.app_id == self.id => Ok(Some(container)),
             _ => Ok(None),
+        }
+    }
+
+    pub fn to_template(self) -> AppTemplate {
+        #[deny(unused_variables)]
+        let Self {
+            name,
+            containers,
+
+            id: _,
+            created_on: _,
+        } = self;
+
+        AppTemplate {
+            name,
+            containers: containers
+                .into_iter()
+                .map(AppContainer::to_template)
+                .collect(),
         }
     }
 }

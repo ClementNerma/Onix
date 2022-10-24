@@ -3,6 +3,26 @@ use serde::{Deserialize, Serialize};
 
 use crate::graphql_enum;
 
+pub use crate::docker::{ContainerEnvironmentVar, ContainerPortBinding};
+
+#[derive(SimpleObject, InputObject, Serialize, Deserialize)]
+#[graphql(input_name_suffix = "Input")]
+pub struct AppTemplate {
+    pub name: String,
+    pub containers: Vec<AppContainerTemplate>,
+}
+
+#[derive(SimpleObject, InputObject, Serialize, Deserialize)]
+#[graphql(input_name_suffix = "Input")]
+pub struct AppContainerTemplate {
+    pub name: String,
+    pub image: String,
+    pub env_vars: Vec<ContainerEnvironmentVar>,
+    pub port_bindings: Vec<ContainerPortBinding>,
+    pub volumes: Vec<AppVolume>,
+    pub depends_on: Vec<String>,
+}
+
 #[derive(SimpleObject, InputObject, Serialize, Deserialize, Clone)]
 #[graphql(input_name_suffix = "Input")]
 pub struct AppVolume {

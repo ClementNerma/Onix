@@ -2,7 +2,7 @@ use anyhow::Context as _;
 use async_graphql::{Context, Object};
 
 use crate::{
-    apps::{App, AppCreationInput, AppId},
+    apps::{App, AppId, AppTemplate},
     utils::graphql::{Result, Void},
 };
 
@@ -12,7 +12,7 @@ pub struct MutationRoot;
 
 #[Object]
 impl MutationRoot {
-    async fn create_app(&self, ctx: &Context<'_>, input: AppCreationInput) -> Result<App> {
+    async fn create_app(&self, ctx: &Context<'_>, input: AppTemplate) -> Result<App> {
         let mut state = get_state(ctx).await;
         let apps = &mut state.user_data_mut().apps;
 
