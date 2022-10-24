@@ -1,0 +1,5 @@
+query GenerateAppTemplate($id: String!) {
+  app(id: $id) {
+    generateTemplate
+  }
+}

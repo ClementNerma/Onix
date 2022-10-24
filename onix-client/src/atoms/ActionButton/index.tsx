@@ -1,4 +1,4 @@
-import { MutationResult } from '@apollo/client'
+import { MutationResult, QueryResult } from '@apollo/client'
 import { Button, ButtonProps, Spinner, useToast } from '@chakra-ui/react'
 import React, { useEffect } from 'react'
 import { MdError } from 'react-icons/md'
@@ -8,8 +8,9 @@ export type ActionButtonProps = {
   loadingIcon?: React.ReactElement
   errorIcon?: React.ReactElement
   label: string
-  state: MutationResult<unknown>
+  state: Pick<MutationResult<unknown> | QueryResult<unknown, unknown>, 'loading' | 'error' | 'data'>
   errorTitle?: string
+  redoable?: boolean
   onClick: () => void
   onStateChange?: (state: ActionButtonState) => void
   onFinished?: (succeeded: boolean) => void
@@ -28,6 +29,7 @@ export const ActionButton = ({
   label,
   state,
   errorTitle,
+  redoable,
   onClick,
   onStateChange,
   onFinished,
@@ -58,10 +60,10 @@ export const ActionButton = ({
     }
   }, [state, onStateChange, onFinished, toast, errorTitle])
 
-  const isActive = !state.loading && !Boolean(state.data)
+  const isDisabled = state.loading || (redoable !== true && Boolean(state.data))
 
   return (
-    <Button {...rest} leftIcon={dynIcon} onClick={onClick} disabled={!isActive}>
+    <Button {...rest} leftIcon={dynIcon} onClick={onClick} disabled={isDisabled}>
       {label}
     </Button>
   )

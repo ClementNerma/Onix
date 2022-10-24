@@ -1,4 +1,4 @@
-mutation CreateApp($input: AppCreationInput!) {
+mutation CreateApp($input: AppTemplateInput!) {
   createApp(input: $input) {
     id
   }

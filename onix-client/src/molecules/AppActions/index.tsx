@@ -1,4 +1,14 @@
-import { ButtonProps, Tag, useDisclosure } from '@chakra-ui/react'
+import {
+  ButtonProps,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Tag,
+  useDisclosure,
+} from '@chakra-ui/react'
 import {
   AppRunningStatus,
   useCreateAppContainersMutation,
@@ -6,11 +16,14 @@ import {
   useStopAppMutation,
   useDestroyAppContainerMutation,
   useRemoveAppMutation,
+  useGenerateAppTemplateLazyQuery,
 } from '../../graphql/generated'
 import { assertNever } from '../../utils'
 import { ActionButton, ActionButtonState } from '../../atoms/ActionButton'
-import { MdAddCircle, MdDelete, MdPlayArrow, MdStop } from 'react-icons/md'
+import { MdAddCircle, MdDelete, MdOutlineTextSnippet, MdPlayArrow, MdStop } from 'react-icons/md'
 import { ConfirmModal } from '../../organisms/ConfirmModal'
+import { useEffect } from 'react'
+import styled from '@emotion/styled'
 
 export type AppActionProps = {
   appId: string
@@ -19,7 +32,46 @@ export type AppActionProps = {
   onFinished?: (succeeded: boolean) => void
 } & ButtonProps
 
-export const AppActions = ({ appId, status, onStateChange, onFinished, ...rest }: AppActionProps) => {
+export const AppActions = (props: AppActionProps) => {
+  const [generateTemplate, templateGeneration] = useGenerateAppTemplateLazyQuery()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  useEffect(() => {
+    if (templateGeneration.data) {
+      onOpen()
+    }
+  }, [templateGeneration, onOpen])
+
+  return (
+    <>
+      <ActionButton
+        size="sm"
+        mr={2}
+        icon={<MdOutlineTextSnippet />}
+        label="Generate template"
+        onClick={() => generateTemplate({ variables: { id: props.appId } })}
+        redoable
+        state={templateGeneration}
+      />
+
+      <AppDynamicActions {...props} />
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Application template</ModalHeader>
+          <ModalCloseButton />
+
+          <ModalBody>
+            <CodeBlock>{templateGeneration.data?.app.generateTemplate}</CodeBlock>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
+  )
+}
+
+export const AppDynamicActions = ({ appId, status, onStateChange, onFinished, ...rest }: AppActionProps) => {
   switch (status) {
     case AppRunningStatus.NotCreated:
       return (
@@ -172,3 +224,9 @@ const RemoveAppButton = ({ appId, onStateChange, onFinished, ...rest }: AppActio
     </>
   )
 }
+
+const CodeBlock = styled('pre')`
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  padding: 0.5rem;
+`
