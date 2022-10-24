@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::HashMap,
     fmt::{Display, Formatter},
 };
 
@@ -52,7 +52,7 @@ pub async fn create_container(
 
         env: Some(
             env.iter()
-                .map(|(name, value)| format!("{name}={value}"))
+                .map(|ContainerEnvironmentVar { name, value }| format!("{name}={value}"))
                 .collect(),
         ),
 
@@ -130,12 +130,19 @@ pub async fn create_container(
 pub struct ContainerCreationConfig {
     pub name: String,
     pub image: String,
-    pub env: BTreeMap<String, String>,
+    pub env: Vec<ContainerEnvironmentVar>,
     pub anon_volumes: Vec<String>,
     pub mounts: Vec<ContainerMount>,
     pub port_bindings: Vec<ContainerPortBinding>,
     pub labels: HashMap<String, String>,
     pub restart_policy: ContainerRestartPolicy,
+}
+
+#[derive(SimpleObject, InputObject, Serialize, Deserialize, Clone)]
+#[graphql(input_name_suffix = "Input")]
+pub struct ContainerEnvironmentVar {
+    pub name: String,
+    pub value: String,
 }
 
 #[derive(

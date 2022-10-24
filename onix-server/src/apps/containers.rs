@@ -1,8 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashSet},
-    hash::Hash,
-    marker::PhantomData,
-};
+use std::{hash::Hash, marker::PhantomData};
 
 use anyhow::{bail, Result};
 use async_graphql::{InputObject, SimpleObject};
@@ -12,7 +8,7 @@ use time::OffsetDateTime;
 
 use crate::{
     declare_id_type,
-    docker::{ContainerPortBinding, NAME_PREFIX},
+    docker::{ContainerEnvironmentVar, ContainerPortBinding, NAME_PREFIX},
     utils::time::get_now,
 };
 
@@ -22,10 +18,10 @@ use super::{app::AppIdentity, volumes::AppVolume, NAME_VALIDATOR};
 pub struct AppContainerCreationInput {
     pub name: String,
     pub image: String,
-    pub env_vars: BTreeMap<String, String>,
+    pub env_vars: Vec<ContainerEnvironmentVar>,
     pub port_bindings: Vec<ContainerPortBinding>,
     pub volumes: Vec<AppVolume>,
-    pub depends_on: HashSet<String>,
+    pub depends_on: Vec<String>,
 }
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
@@ -35,10 +31,10 @@ pub struct AppContainer {
     pub id: AppContainerId,
     pub name: String,
     pub image: String,
-    pub env_vars: BTreeMap<String, String>,
+    pub env_vars: Vec<ContainerEnvironmentVar>,
     pub port_bindings: Vec<ContainerPortBinding>,
     pub volumes: Vec<AppVolume>,
-    pub depends_on: HashSet<String>,
+    pub depends_on: Vec<String>,
     created_on: OffsetDateTime,
 }
 
@@ -59,27 +55,37 @@ impl AppContainer {
             bail!("Please provide a non-empty image name");
         }
 
-        if input.env_vars.keys().any(|name| name.trim().is_empty()) {
-            bail!("Please provide a non-empty for all environment variables");
+        for ContainerEnvironmentVar {
+            ref name,
+            ref value,
+        } in &input.env_vars
+        {
+            if name.is_empty() {
+                bail!("Please provide a non-empty for all environment variables");
+            }
+
+            if !NAME_VALIDATOR.is_match(&name) {
+                bail!(
+                    "Invalid environment variable name provided '{name}', please follow regex: {}",
+                    NAME_VALIDATOR.as_str()
+                );
+            }
+
+            if value.trim().is_empty() {
+                bail!("Please provide a value for the '{name}' environment variable or remove this variable");
+            }
         }
 
-        if let Some(name) = input
-            .env_vars
-            .keys()
-            .find(|name| !NAME_VALIDATOR.is_match(&name))
-        {
-            bail!(
-                "Invalid environment variable name provided '{name}', please follow regex: {}",
-                NAME_VALIDATOR.as_str()
-            );
-        }
-
-        if let Some((name, _)) = input
-            .env_vars
-            .iter()
-            .find(|(_, value)| value.trim().is_empty())
-        {
-            bail!("Please provide a value for the '{name}' environment variable or remove this variable");
+        for dependance in &input.depends_on {
+            if input
+                .depends_on
+                .iter()
+                .filter(|dep| dep == &dependance)
+                .count()
+                > 1
+            {
+                bail!("Dependance '{}' was specified twice", dependance);
+            }
         }
 
         if let Some((binding_a, binding_b)) =
