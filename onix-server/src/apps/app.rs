@@ -8,10 +8,7 @@ use time::OffsetDateTime;
 
 use crate::{declare_id_type, docker::ExistingContainer, utils::time::get_now};
 
-use super::{
-    containers::AppContainer, existing_containers::ExistingAppContainer, AppTemplate,
-    NAME_VALIDATOR,
-};
+use super::{containers::AppContainer, existing_containers::ExistingAppContainer, AppTemplate};
 
 #[derive(SimpleObject, Serialize, Deserialize, Clone)]
 #[graphql(complex)]
@@ -24,11 +21,8 @@ pub struct App {
 
 impl App {
     pub fn new(input: AppTemplate) -> Result<Self> {
-        if !NAME_VALIDATOR.is_match(&input.name) {
-            bail!(
-                "Invalid name, please follow regex: {}",
-                NAME_VALIDATOR.as_str()
-            );
+        if input.name.trim().is_empty() {
+            bail!("Please provide a non-empty name");
         }
 
         #[deny(unused_variables)]
