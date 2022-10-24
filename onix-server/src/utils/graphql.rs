@@ -120,7 +120,7 @@ macro_rules! graphql_enum {
         }
 
         impl ::async_graphql::InputType for $name {
-            type RawValueType = ::paste::paste! { [<$name GraphQL>] };
+            type RawValueType = Self;
 
             fn type_name() -> ::std::borrow::Cow<'static, str> {
                 let base_name = ::paste::paste! { <[<$name GraphQL>] as InputType>::type_name() };
@@ -144,8 +144,7 @@ macro_rules! graphql_enum {
             }
 
             fn as_raw_value(&self) -> Option<&Self::RawValueType> {
-                // ::paste::paste! { <[<$name GraphQL>] as InputType>::as_raw_value(&self.encode_cloned()) }
-                todo!()
+                Some(self)
             }
         }
    };
