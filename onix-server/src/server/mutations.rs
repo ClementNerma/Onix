@@ -78,4 +78,20 @@ impl MutationRoot {
             .map(Into::into)
             .map_err(Into::into)
     }
+
+    async fn remove_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
+        let state = &mut get_state(ctx).await;
+
+        get_runner_for(&state, id)
+            .await?
+            .ensure_can_be_removed()
+            .await?;
+
+        let apps = &mut state.user_data_mut().apps;
+
+        let index = apps.iter().position(|app| app.id == id).expect("Assertion error: application was not found in user data after checking checked for removal");
+        apps.remove(index);
+
+        Ok(Void)
+    }
 }

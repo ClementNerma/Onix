@@ -290,6 +290,14 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
         Ok(())
     }
 
+    pub async fn ensure_can_be_removed(&self) -> Result<()> {
+        if self.status().await? != AppRunningStatus::NotCreated {
+            bail!("All containers must be destroyed before removing the application.");
+        }
+
+        Ok(())
+    }
+
     fn generate_container_config(&self, container: &AppContainer) -> ContainerCreationConfig {
         assert_eq!(
             container.app.id, self.app.id,

@@ -5,6 +5,7 @@ import {
   useStartAppMutation,
   useStopAppMutation,
   useDestroyAppContainerMutation,
+  useRemoveAppMutation,
 } from '../../graphql/generated'
 import { assertNever } from '../../utils'
 import { ActionButton, ActionButtonState } from '../../atoms/ActionButton'
@@ -21,7 +22,12 @@ export type AppActionProps = {
 export const AppActions = ({ appId, status, onStateChange, onFinished, ...rest }: AppActionProps) => {
   switch (status) {
     case AppRunningStatus.NotCreated:
-      return <CreateAppContainersButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+      return (
+        <>
+          <CreateAppContainersButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+          <RemoveAppButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+        </>
+      )
 
     case AppRunningStatus.Stopped:
       return (
@@ -61,7 +67,7 @@ const CreateAppContainersButton = ({ appId, onStateChange, onFinished, ...rest }
       colorScheme="blue"
       size="sm"
       onClick={() => createAppContainers({ variables: { id: appId } })}
-      label="Create app containers"
+      label="Create containers"
       state={result}
       errorTitle="Failed to create application"
       onStateChange={onStateChange}
@@ -133,6 +139,30 @@ const DestroyAppContainersButton = ({ appId, onStateChange, onFinished, ...rest 
         onClose={onClose}
         onConfirm={() => destroyAppContainers({ variables: { id: appId } })}
       />
+    </>
+  )
+}
+
+const RemoveAppButton = ({ appId, onStateChange, onFinished, ...rest }: AppActionButtonProps) => {
+  const [removeApp, result] = useRemoveAppMutation()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  return (
+    <>
+      <ActionButton
+        icon={<MdDelete />}
+        colorScheme="red"
+        size="sm"
+        onClick={onOpen}
+        label="Delete"
+        state={result}
+        errorTitle="Failed to remove the application"
+        onStateChange={onStateChange}
+        onFinished={onFinished}
+        {...rest}
+      />
+
+      <ConfirmModal isOpen={isOpen} onClose={onClose} onConfirm={() => removeApp({ variables: { id: appId } })} />
     </>
   )
 }

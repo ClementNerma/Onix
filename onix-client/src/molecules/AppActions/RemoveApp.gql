@@ -1,0 +1,3 @@
+mutation RemoveApp($id: String!) {
+  removeApp(id: $id)
+}
