@@ -1,5 +1,4 @@
-import { ButtonProps, useToast } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { ButtonProps } from '@chakra-ui/react'
 import { MdStop } from 'react-icons/md'
 import { useStopAppMutation } from '../../graphql/generated'
 import { ActionButton, ActionButtonState } from '../ActionButton'
@@ -12,17 +11,6 @@ export type StopAppButtonProps = {
 
 export const StopAppButton = ({ appId, onStateChange, onFinished, ...rest }: StopAppButtonProps) => {
   const [stopApp, result] = useStopAppMutation()
-  const toast = useToast()
-
-  useEffect(() => {
-    if (result.error) {
-      toast({
-        title: 'Application stopping failed',
-        description: result.error.message,
-        status: 'error',
-      })
-    }
-  }, [result.error])
 
   return (
     <ActionButton
@@ -32,6 +20,7 @@ export const StopAppButton = ({ appId, onStateChange, onFinished, ...rest }: Sto
       onClick={() => stopApp({ variables: { id: appId } })}
       label="Stop"
       state={result}
+      errorTitle="Failed to stop the application"
       onStateChange={onStateChange}
       onFinished={onFinished}
       {...rest}

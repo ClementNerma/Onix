@@ -1,5 +1,4 @@
-import { ButtonProps, useToast } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { ButtonProps } from '@chakra-ui/react'
 import { MdAddCircle } from 'react-icons/md'
 import { useCreateAppContainerMutation } from '../../graphql/generated'
 import { ActionButton, ActionButtonState } from '../ActionButton'
@@ -17,17 +16,6 @@ export const CreateAppContainersButton = ({
   ...rest
 }: CreateAppContainersButtonProps) => {
   const [createAppContainers, result] = useCreateAppContainerMutation()
-  const toast = useToast()
-
-  useEffect(() => {
-    if (result.error) {
-      toast({
-        title: 'Containers creation failed',
-        description: result.error.message,
-        status: 'error',
-      })
-    }
-  }, [result.error])
 
   return (
     <ActionButton
@@ -37,6 +25,7 @@ export const CreateAppContainersButton = ({
       onClick={() => createAppContainers({ variables: { id: appId } })}
       label="Create app containers"
       state={result}
+      errorTitle="Failed to create application"
       onStateChange={onStateChange}
       onFinished={onFinished}
       {...rest}

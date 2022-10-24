@@ -1,5 +1,4 @@
-import { ButtonProps, useToast } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { ButtonProps } from '@chakra-ui/react'
 import { MdPlayArrow } from 'react-icons/md'
 import { useStartAppMutation } from '../../graphql/generated'
 import { ActionButton, ActionButtonState } from '../ActionButton'
@@ -12,17 +11,6 @@ export type StartAppButtonProps = {
 
 export const StartAppButton = ({ appId, onStateChange, onFinished, ...rest }: StartAppButtonProps) => {
   const [startApp, result] = useStartAppMutation()
-  const toast = useToast()
-
-  useEffect(() => {
-    if (result.error) {
-      toast({
-        title: 'Failed to start application',
-        description: result.error.message,
-        status: 'error',
-      })
-    }
-  }, [result.error])
 
   return (
     <ActionButton
@@ -32,6 +20,7 @@ export const StartAppButton = ({ appId, onStateChange, onFinished, ...rest }: St
       onClick={() => startApp({ variables: { id: appId } })}
       label="Start"
       state={result}
+      errorTitle="Failed to start the application"
       onStateChange={onStateChange}
       onFinished={onFinished}
       {...rest}
