@@ -24,7 +24,13 @@ export const AppActions = ({ appId, status, onStateChange, onFinished, ...rest }
     case AppRunningStatus.NotCreated:
       return (
         <>
-          <CreateAppContainersButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+          <CreateAppContainersButton
+            mr={2}
+            appId={appId}
+            onStateChange={onStateChange}
+            onFinished={onFinished}
+            {...rest}
+          />
           <RemoveAppButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
         </>
       )
@@ -32,7 +38,7 @@ export const AppActions = ({ appId, status, onStateChange, onFinished, ...rest }
     case AppRunningStatus.Stopped:
       return (
         <>
-          <StartAppButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+          <StartAppButton mr={2} appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
           <DestroyAppContainersButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
         </>
       )
