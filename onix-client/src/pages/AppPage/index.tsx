@@ -22,7 +22,7 @@ export const AppPage = () => {
 
   return (
     <Box>
-      <Heading size="lg">Application '{app.name}'</Heading>
+      <Heading size="lg">Application &apos;{app.name}&apos;</Heading>
 
       <Table variant="unstyled" display="inline-block">
         <Tbody>
