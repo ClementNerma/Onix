@@ -1,3 +1,0 @@
-mutation CreateAppContainer($id: String!) {
-  createAppContainers(id: $id)
-}

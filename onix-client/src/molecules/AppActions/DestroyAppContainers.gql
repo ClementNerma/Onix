@@ -1,0 +1,3 @@
+mutation DestroyAppContainer($id: String!) {
+  destroyAppContainers(id: $id)
+}

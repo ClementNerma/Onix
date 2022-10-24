@@ -66,4 +66,16 @@ impl MutationRoot {
             .map(Into::into)
             .map_err(Into::into)
     }
+
+    async fn destroy_app_containers(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
+        let state = &get_state(ctx).await;
+
+        let runner = get_runner_for(&state, id).await?;
+
+        runner
+            .remove_containers()
+            .await
+            .map(Into::into)
+            .map_err(Into::into)
+    }
 }

@@ -1,0 +1,3 @@
+mutation CreateAppContainers($id: String!) {
+  createAppContainers(id: $id)
+}

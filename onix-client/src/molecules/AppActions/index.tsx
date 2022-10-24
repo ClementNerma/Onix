@@ -1,13 +1,15 @@
-import { ButtonProps, Tag } from '@chakra-ui/react'
+import { ButtonProps, Tag, useDisclosure } from '@chakra-ui/react'
 import {
   AppRunningStatus,
-  useCreateAppContainerMutation,
+  useCreateAppContainersMutation,
   useStartAppMutation,
   useStopAppMutation,
+  useDestroyAppContainerMutation,
 } from '../../graphql/generated'
 import { assertNever } from '../../utils'
 import { ActionButton, ActionButtonState } from '../../atoms/ActionButton'
-import { MdAddCircle, MdPlayArrow, MdStop } from 'react-icons/md'
+import { MdAddCircle, MdDelete, MdPlayArrow, MdStop } from 'react-icons/md'
+import { ConfirmModal } from '../../organisms/ConfirmModal'
 
 export type AppActionProps = {
   appId: string
@@ -22,7 +24,12 @@ export const AppActions = ({ appId, status, onStateChange, onFinished, ...rest }
       return <CreateAppContainersButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
 
     case AppRunningStatus.Stopped:
-      return <StartAppButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+      return (
+        <>
+          <StartAppButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+          <DestroyAppContainersButton appId={appId} onStateChange={onStateChange} onFinished={onFinished} {...rest} />
+        </>
+      )
 
     case AppRunningStatus.PartiallyCreated:
     case AppRunningStatus.Zombie:
@@ -46,7 +53,7 @@ type AppActionButtonProps = {
 } & Omit<ButtonProps, 'onClick'>
 
 const CreateAppContainersButton = ({ appId, onStateChange, onFinished, ...rest }: AppActionButtonProps) => {
-  const [createAppContainers, result] = useCreateAppContainerMutation()
+  const [createAppContainers, result] = useCreateAppContainersMutation()
 
   return (
     <ActionButton
@@ -99,5 +106,33 @@ const StopAppButton = ({ appId, onStateChange, onFinished, ...rest }: AppActionB
       onFinished={onFinished}
       {...rest}
     />
+  )
+}
+
+const DestroyAppContainersButton = ({ appId, onStateChange, onFinished, ...rest }: AppActionButtonProps) => {
+  const [destroyAppContainers, result] = useDestroyAppContainerMutation()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  return (
+    <>
+      <ActionButton
+        icon={<MdDelete />}
+        colorScheme="red"
+        size="sm"
+        onClick={onOpen}
+        label="Remove containers"
+        state={result}
+        errorTitle="Failed to destroy the application's containers"
+        onStateChange={onStateChange}
+        onFinished={onFinished}
+        {...rest}
+      />
+
+      <ConfirmModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={() => destroyAppContainers({ variables: { id: appId } })}
+      />
+    </>
   )
 }
