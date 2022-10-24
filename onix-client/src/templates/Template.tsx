@@ -16,7 +16,6 @@ const FullPageContainer = styled(Flex)`
   left: 0;
   right: 0;
   bottom: 0;
-  overflow: hidden;
 `
 
 const SideNavContainer = styled(Box)`
@@ -25,6 +24,8 @@ const SideNavContainer = styled(Box)`
 
 const OutletContainer = styled(Box)`
   padding: 1rem;
+  width: 100%;
+  overflow: auto;
 `
 
 export const Template = () => {

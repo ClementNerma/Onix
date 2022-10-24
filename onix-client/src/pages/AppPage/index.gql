@@ -1,6 +1,35 @@
 query AppPage($id: String!) {
   app(id: $id) {
     ...App
+    containers {
+      dockerContainer {
+        dockerContainerName
+        status
+      }
+      volumes {
+        name
+        variant {
+          ... on AppVolumeTypeDisposableGraphQL {
+            __typename
+          }
+
+          ... on AppVolumeTypeInternalGraphQL {
+            __typename
+          }
+
+          ... on AppVolumeTypeExternalGraphQL {
+            containerPath
+            readonly
+          }
+
+          ... on AppVolumeTypeBindToPathGraphQL {
+            realPath
+            containerPath
+            readonly
+          }
+        }
+      }
+    }
     fetchedStatus
   }
 }
