@@ -3,6 +3,7 @@ import { MdDelete } from 'react-icons/md'
 import { BoxedStack } from '../../atoms/BoxedStack'
 import { AppContainerCreationInput } from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
+import { ContainerEnvVars } from './ContainerEnvVars'
 
 export type CreateAppContainerProps = {
   state: AppContainerCreationInput
@@ -14,7 +15,7 @@ export const CreateAppContainer = ({ state, onChange, onRemove }: CreateAppConta
   const { name, image, envVars, portBindings, volumes, dependsOn } = state
 
   return (
-    <BoxedStack>
+    <BoxedStack spacing={5}>
       <HStack>
         <IconButton size="xs" as={MdDelete} onClick={onRemove} aria-label="Remove this container" />
         <Heading size="md">Container &quot;{state.name}&quot;</Heading>
@@ -34,6 +35,10 @@ export const CreateAppContainer = ({ state, onChange, onRemove }: CreateAppConta
         value={image}
         onChange={(image) => onChange({ ...state, image })}
       />
+
+      <Heading size="sm">Environment variables</Heading>
+
+      <ContainerEnvVars state={envVars} onChange={(envVars) => onChange({ ...state, envVars })} />
     </BoxedStack>
   )
 }

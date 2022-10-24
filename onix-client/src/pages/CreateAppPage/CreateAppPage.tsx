@@ -61,7 +61,7 @@ export const CreateAppPage = () => {
       {
         name: '',
         image: '',
-        envVars: {},
+        envVars: [],
         portBindings: [],
         volumes: [],
         dependsOn: [],
