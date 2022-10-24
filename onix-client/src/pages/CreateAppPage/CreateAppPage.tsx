@@ -7,6 +7,7 @@ import { AppContainerCreationInput, useCreateAppMutation } from '../../graphql/g
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
 import { CreateAppContainer } from './CreateAppContainer'
 import { ActionButton } from '../../atoms/ActionButton'
+import { useNavigate } from '../../router'
 
 export const CreateAppPage = () => {
   const [createApp, creatingApp] = useCreateAppMutation()
@@ -14,6 +15,7 @@ export const CreateAppPage = () => {
   const [appName, setAppName] = useState('')
   const [appContainers, setAppContainers] = useState<AppContainerCreationInput[]>([])
 
+  const navigate = useNavigate()
   const toast = useToast()
 
   const submit = useCallback(() => {
@@ -38,8 +40,10 @@ export const CreateAppPage = () => {
         description: creatingApp.error.message,
         status: 'error',
       })
+    } else if (creatingApp.data) {
+      navigate(`/apps/${creatingApp.data.createApp.id}`)
     }
-  }, [creatingApp.error, toast])
+  }, [creatingApp, toast, navigate])
 
   const updateContainerInput = useCallback(
     (state: AppContainerCreationInput, index: number) => {
