@@ -1,4 +1,4 @@
-import { Heading, HStack, IconButton } from '@chakra-ui/react'
+import { Button, Heading, HStack, Icon, IconButton } from '@chakra-ui/react'
 import { MdDelete } from 'react-icons/md'
 import { BoxedStack } from '../../atoms/BoxedStack'
 import { AppContainerTemplateInput } from '../../graphql/generated'
@@ -18,10 +18,12 @@ export const CreateAppContainer = ({ state, onChange, onRemove }: CreateAppConta
 
   return (
     <BoxedStack spacing={5}>
-      <HStack>
-        <IconButton size="xs" as={MdDelete} onClick={onRemove} aria-label="Remove this container" />
-        <Heading size="md">Container &quot;{state.name}&quot;</Heading>
-      </HStack>
+      <Heading size="md">
+        Container: {state.name}
+        <Button onClick={onRemove} size="sm">
+          <Icon as={MdDelete} /> Remove
+        </Button>
+      </Heading>
 
       <ValidableInput
         type="text"
