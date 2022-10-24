@@ -5,6 +5,7 @@ import { AppContainerTemplateInput } from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
 import { ContainerEnvVars } from './ContainerEnvVars'
 import { ContainerPortBindings } from './ContainerPortBindings'
+import { ContainerVolumes } from './ContainersVolumes'
 
 export type CreateAppContainerProps = {
   state: AppContainerTemplateInput
@@ -44,6 +45,10 @@ export const CreateAppContainer = ({ state, onChange, onRemove }: CreateAppConta
       <Heading size="sm">Port bindings</Heading>
 
       <ContainerPortBindings state={portBindings} onChange={(portBindings) => onChange({ ...state, portBindings })} />
+
+      <Heading size="sm">Volumes</Heading>
+
+      <ContainerVolumes state={volumes} onChange={(volumes) => onChange({ ...state, volumes })} />
     </BoxedStack>
   )
 }

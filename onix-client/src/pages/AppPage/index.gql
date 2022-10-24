@@ -10,11 +10,11 @@ query AppPage($id: String!) {
         name
         variant {
           ... on AppVolumeTypeDisposableGraphQL {
-            __typename
+            containerPath
           }
 
           ... on AppVolumeTypeInternalGraphQL {
-            __typename
+            containerPath
           }
 
           ... on AppVolumeTypeExternalGraphQL {
@@ -23,8 +23,8 @@ query AppPage($id: String!) {
           }
 
           ... on AppVolumeTypeBindToPathGraphQL {
-            realPath
             containerPath
+            hostPath
             readonly
           }
         }
