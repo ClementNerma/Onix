@@ -191,6 +191,7 @@ macro_rules! graphql_enum {
             #[graphql(input_name_suffix = "Input")]
             $(#[$inner])*
             pub struct [<$name $pat_name GraphQL>] {
+                #[graphql(name = "_empty")]
                 __empty: $crate::utils::graphql::Void
             }
         }
@@ -279,11 +280,15 @@ macro_rules! declare_id_type {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash, Serialize, Deserialize)]
 pub struct Void;
 
-#[Scalar]
+#[Scalar(name = "JSONObject")]
 impl ScalarType for Void {
     fn parse(value: Value) -> InputValueResult<Self> {
-        if let Value::Null = &value {
-            Ok(Self)
+        if let Value::Object(map) = &value {
+            if map.is_empty() {
+                Ok(Self)
+            } else {
+                Err(InputValueError::custom("Void object must be empty"))
+            }
         } else {
             Err(InputValueError::expected_type(value))
         }
