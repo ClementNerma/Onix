@@ -280,7 +280,7 @@ macro_rules! declare_id_type {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash, Serialize, Deserialize)]
 pub struct Void;
 
-#[Scalar(name = "JSONObject")]
+#[Scalar]
 impl ScalarType for Void {
     fn parse(value: Value) -> InputValueResult<Self> {
         if let Value::Object(map) = &value {
