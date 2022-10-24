@@ -1,10 +1,11 @@
 import { RouteObject, useNavigate as useBaseNavigate } from 'react-router-dom'
 import { useParams as useBaseParams } from 'react-router-dom'
 import { AppPage } from './pages/AppPage'
+import { CreateAppPage } from './pages/CreateAppPage/CreateAppPage'
 import { HomePage } from './pages/HomePage'
 import { Template } from './templates/Template'
 
-export type Route = '/' | `/apps/${string}`
+export type Route = '/' | `/apps/${string}` | `/create`
 
 export const validateRoute = (route: Route) => route
 
@@ -47,6 +48,10 @@ export function getRoutes(): RouteObject[] {
         {
           path: validateRoute('/apps/:appId'),
           element: <AppPage />,
+        },
+        {
+          path: validateRoute('/create'),
+          element: <CreateAppPage />,
         },
       ],
     },

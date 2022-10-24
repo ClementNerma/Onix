@@ -1,17 +1,22 @@
-import { HStack, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
+import { Button, HStack, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { ActionButtonState } from '../../atoms/ActionButton'
 import { AppStatus } from '../../atoms/AppStatus'
 import { HomePageQuery } from '../../graphql/generated'
 import { AppActions } from '../../molecules/AppActions'
 import { Link } from '../../atoms/Link'
+import { MdAdd } from 'react-icons/md'
+import { useNavigate } from '../../router'
 
 export type AppsListProps = {
   apps: HomePageQuery['apps']
+  showCreateButton?: boolean
   onStateChange?: (state: ActionButtonState) => void
   onFinished?: (succeeded: boolean) => void
 }
 
-export const AppsList = ({ apps, onStateChange, onFinished }: AppsListProps) => {
+export const AppsList = ({ apps, showCreateButton, onStateChange, onFinished }: AppsListProps) => {
+  const navigate = useNavigate()
+
   return (
     <TableContainer>
       <Table variant="simple">
@@ -45,6 +50,15 @@ export const AppsList = ({ apps, onStateChange, onFinished }: AppsListProps) => 
               </Td>
             </Tr>
           ))}
+          {showCreateButton === true && (
+            <Tr>
+              <Td colSpan={4}>
+                <Button colorScheme="green" leftIcon={<MdAdd />} onClick={() => navigate('/create')}>
+                  Create
+                </Button>
+              </Td>
+            </Tr>
+          )}
         </Tbody>
       </Table>
     </TableContainer>

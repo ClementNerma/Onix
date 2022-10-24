@@ -1,6 +1,7 @@
 import { Box, Divider, Flex } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import { Outlet } from 'react-router-dom'
+import { BoxedStack } from '../atoms/BoxedStack'
 import { SideNav, SideNavItem } from '../organisms/SideNav'
 
 const pages: SideNavItem[] = [
@@ -42,7 +43,9 @@ export const Template = () => {
       <Divider orientation="vertical" />
       <OutletContainer>
         <SubOutletContainer>
-          <Outlet />
+          <BoxedStack noBorder spacing={5}>
+            <Outlet />
+          </BoxedStack>
         </SubOutletContainer>
       </OutletContainer>
     </FullPageContainer>

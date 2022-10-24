@@ -15,7 +15,7 @@ export function HomePage() {
 
   return (
     <Box>
-      <AppsList apps={data.apps} onFinished={() => refetch()} />
+      <AppsList apps={data.apps} onFinished={() => refetch()} showCreateButton />
     </Box>
   )
 }

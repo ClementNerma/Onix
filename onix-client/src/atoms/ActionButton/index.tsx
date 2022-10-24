@@ -46,7 +46,7 @@ export const ActionButton = ({
       onStateChange?.(ActionButtonState.Done)
       onFinished?.(true)
     }
-  }, [state, onStateChange])
+  }, [state, onStateChange, onFinished])
 
   const isActive = !state.loading && !Boolean(state.data)
 
