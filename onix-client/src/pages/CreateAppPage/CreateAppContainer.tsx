@@ -4,6 +4,7 @@ import { BoxedStack } from '../../atoms/BoxedStack'
 import { AppContainerCreationInput } from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
 import { ContainerEnvVars } from './ContainerEnvVars'
+import { ContainerPortBindings } from './ContainerPortBindings'
 
 export type CreateAppContainerProps = {
   state: AppContainerCreationInput
@@ -39,6 +40,10 @@ export const CreateAppContainer = ({ state, onChange, onRemove }: CreateAppConta
       <Heading size="sm">Environment variables</Heading>
 
       <ContainerEnvVars state={envVars} onChange={(envVars) => onChange({ ...state, envVars })} />
+
+      <Heading size="sm">Port bindings</Heading>
+
+      <ContainerPortBindings state={portBindings} onChange={(portBindings) => onChange({ ...state, portBindings })} />
     </BoxedStack>
   )
 }
