@@ -2,7 +2,10 @@ fragment AppContainer on AppContainer {
   id
   name
   image
-  envVars
+  envVars {
+    name
+    value
+  }
   portBindings {
     hostPort {
       port
