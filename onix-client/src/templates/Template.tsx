@@ -28,6 +28,11 @@ const OutletContainer = styled(Box)`
   overflow: auto;
 `
 
+const SubOutletContainer = styled(Box)`
+  width: fit-content;
+  height: fit-contnet;
+`
+
 export const Template = () => {
   return (
     <FullPageContainer direction="row">
@@ -36,7 +41,9 @@ export const Template = () => {
       </SideNavContainer>
       <Divider orientation="vertical" />
       <OutletContainer>
-        <Outlet />
+        <SubOutletContainer>
+          <Outlet />
+        </SubOutletContainer>
       </OutletContainer>
     </FullPageContainer>
   )
