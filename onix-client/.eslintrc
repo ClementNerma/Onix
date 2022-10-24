@@ -9,7 +9,9 @@
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
   ],
   "root": true,
   "ignorePatterns": ["node_modules", "src/graphql/generated.ts"],
@@ -34,6 +36,9 @@
       {
         "checksVoidReturn": false
       }
-    ]
+    ],
+    "@typescript-eslint/no-floating-promises": "off",
+    "react/react-in-jsx-scope": "off",
+    "react-hooks/exhaustive-deps": "error"
   }
 }
