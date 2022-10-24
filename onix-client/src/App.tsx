@@ -1,10 +1,8 @@
 import { ApolloProvider } from '@apollo/client'
 import { ChakraProvider } from '@chakra-ui/react'
-import { BrowserRouter, createBrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { client } from './graphql/client'
-import { HomePage } from './pages/HomePage'
-import { getRoutes, validateRoute } from './router'
-import { Template } from './templates/Template'
+import { getRoutes } from './router'
 
 export const App = () => {
   const router = createBrowserRouter(getRoutes())
