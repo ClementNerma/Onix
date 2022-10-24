@@ -35,11 +35,11 @@ graphql_enum!(
     pub enum AppVolumeType {
         /// Volume that could be dropped without any real datal loss
         /// (e.g. cache or unimportant configuration files)
-        Disposable,
+        Disposable { container_path: String },
 
         /// Internal volume used to store data which does not need to be modifiable
         /// by the end user (non-disposable)
-        Internal,
+        Internal { container_path: String },
 
         /// External volume stored in an accessible filesystem
         External {
@@ -49,8 +49,8 @@ graphql_enum!(
 
         /// Binding to a real directory
         BindToPath {
-            real_path: String,
             container_path: String,
+            real_path: String,
             readonly: bool,
         },
         // TODO: /// Binding to a global path

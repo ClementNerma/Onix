@@ -308,16 +308,19 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             "Assertion error: tried to generate a container's configuration for another app in runner"
         );
 
-        let mut anon_volumes = vec![];
         let mut mounts = vec![];
 
         let container_identity = container.identity();
 
         for volume in &container.volumes {
             match &volume.variant {
-                AppVolumeType::Disposable | AppVolumeType::Internal => {
-                    anon_volumes.push(volume.name.clone());
-                }
+                AppVolumeType::Disposable { container_path } |
+                AppVolumeType::Internal { container_path } =>
+                    mounts.push(ContainerMount {
+                        in_host: volume.name.clone(),
+                        in_container: container_path.clone(),
+                        readonly: false
+                    }),
 
                 AppVolumeType::External {
                     container_path,
@@ -345,7 +348,6 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
             image: container.image.clone(),
             env: container.env_vars.clone(),
             port_bindings: container.port_bindings.clone(),
-            anon_volumes,
             mounts,
             labels: HashMap::from([
                 (APP_ID_LABEL.to_string(), container.app.id.to_string()),

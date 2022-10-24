@@ -38,7 +38,6 @@ pub async fn create_container(
         name,
         image,
         env,
-        anon_volumes,
         mounts,
         port_bindings,
         labels,
@@ -53,13 +52,6 @@ pub async fn create_container(
         env: Some(
             env.iter()
                 .map(|ContainerEnvironmentVar { name, value }| format!("{name}={value}"))
-                .collect(),
-        ),
-
-        volumes: Some(
-            anon_volumes
-                .into_iter()
-                .map(|key| (key.clone(), HashMap::new()))
                 .collect(),
         ),
 
@@ -131,7 +123,6 @@ pub struct ContainerCreationConfig {
     pub name: String,
     pub image: String,
     pub env: Vec<ContainerEnvironmentVar>,
-    pub anon_volumes: Vec<String>,
     pub mounts: Vec<ContainerMount>,
     pub port_bindings: Vec<ContainerPortBinding>,
     pub labels: HashMap<String, String>,
