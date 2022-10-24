@@ -59,11 +59,7 @@ pub async fn create_container(
         volumes: Some(
             anon_volumes
                 .into_iter()
-                .map(|key| {
-                    let mut empty = HashMap::new();
-                    empty.insert((), ());
-                    (key.clone(), empty)
-                })
+                .map(|key| (key.clone(), HashMap::new()))
                 .collect(),
         ),
 
