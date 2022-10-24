@@ -30,6 +30,7 @@ checksum = "98161a4e3e2184da77bb14f02184cdd111e83bbbcc9979dfee3c44b9a85f5602"
 [[package]]
 name = "async-graphql"
 version = "4.0.16"
+source = "git+https://github.com/ClementNerma/async-graphql-fork?branch=feat/input-name-suffix#0f0f948a597e02d5a133b43ad9d4179a7d53d09e"
 dependencies = [
  "async-graphql-derive",
  "async-graphql-parser",
@@ -61,6 +62,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-axum"
 version = "4.0.16"
+source = "git+https://github.com/ClementNerma/async-graphql-fork?branch=feat/input-name-suffix#0f0f948a597e02d5a133b43ad9d4179a7d53d09e"
 dependencies = [
  "async-graphql",
  "async-trait",
@@ -76,6 +78,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-derive"
 version = "4.0.16"
+source = "git+https://github.com/ClementNerma/async-graphql-fork?branch=feat/input-name-suffix#0f0f948a597e02d5a133b43ad9d4179a7d53d09e"
 dependencies = [
  "Inflector",
  "async-graphql-parser",
@@ -90,6 +93,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-parser"
 version = "4.0.16"
+source = "git+https://github.com/ClementNerma/async-graphql-fork?branch=feat/input-name-suffix#0f0f948a597e02d5a133b43ad9d4179a7d53d09e"
 dependencies = [
  "async-graphql-value",
  "pest",
@@ -100,6 +104,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-value"
 version = "4.0.16"
+source = "git+https://github.com/ClementNerma/async-graphql-fork?branch=feat/input-name-suffix#0f0f948a597e02d5a133b43ad9d4179a7d53d09e"
 dependencies = [
  "bytes",
  "indexmap",
