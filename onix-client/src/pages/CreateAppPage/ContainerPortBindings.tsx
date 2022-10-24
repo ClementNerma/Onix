@@ -45,8 +45,9 @@ export const ContainerPortBindings = ({ state, onChange }: ContainerPortBindings
         <Thead>
           <Tr>
             <Th>Actions</Th>
-            <Th>Host port</Th>
             <Th>Host port type</Th>
+            <Th>Host port</Th>
+            <Th></Th>
             <Th>Container port</Th>
             <Th>Container port type</Th>
           </Tr>
@@ -58,7 +59,12 @@ export const ContainerPortBindings = ({ state, onChange }: ContainerPortBindings
                 <IconButton size="xs" as={MdDelete} onClick={() => removeVar(i)} aria-label="Remove this binding" />
               </Td>
               <Port state={hostPort} onChange={(hostPort) => updateVar({ hostPort, containerPort }, i)} />
-              <Port state={containerPort} onChange={(containerPort) => updateVar({ hostPort, containerPort }, i)} />
+              <Td>&lt;=&gt;</Td>
+              <Port
+                state={containerPort}
+                onChange={(containerPort) => updateVar({ hostPort, containerPort }, i)}
+                reverse
+              />
             </Tr>
           ))}
           <Tr>
@@ -77,9 +83,10 @@ export const ContainerPortBindings = ({ state, onChange }: ContainerPortBindings
 type PortProps = {
   state: PortInput
   onChange: (state: PortInput) => void
+  reverse?: boolean
 }
 
-const Port = ({ state, onChange }: PortProps) => {
+const Port = ({ state, onChange, reverse }: PortProps) => {
   const [isPortNumberInvalid, setIsPortNumberInvalid] = useState(false)
 
   const setPortNumber = useCallback(
@@ -94,23 +101,36 @@ const Port = ({ state, onChange }: PortProps) => {
     [setIsPortNumberInvalid, onChange, state],
   )
 
-  return (
+  const left = (
+    <Td>
+      <Select value={state.portType} onChange={(e) => onChange({ ...state, portType: e.target.value as PortType })}>
+        <option value={PortType.TcpUdp}>TCP & UDP</option>
+        <option value={PortType.Tcp}>TCP only</option>
+        <option value={PortType.Udp}>UDP only</option>
+      </Select>
+    </Td>
+  )
+
+  const right = (
+    <Td>
+      <Input
+        type="number"
+        isInvalid={isPortNumberInvalid}
+        value={state.port}
+        onChange={(e) => setPortNumber(e.target.value)}
+      />
+    </Td>
+  )
+
+  return reverse !== true ? (
     <>
-      <Td>
-        <Input
-          type="number"
-          isInvalid={isPortNumberInvalid}
-          value={state.port}
-          onChange={(e) => setPortNumber(e.target.value)}
-        />
-      </Td>
-      <Td>
-        <Select value={state.portType} onChange={(e) => onChange({ ...state, portType: e.target.value as PortType })}>
-          <option value={PortType.TcpUdp}>TCP & UDP</option>
-          <option value={PortType.Tcp}>TCP only</option>
-          <option value={PortType.Udp}>UDP only</option>
-        </Select>
-      </Td>
+      {left}
+      {right}
+    </>
+  ) : (
+    <>
+      {right}
+      {left}
     </>
   )
 }
