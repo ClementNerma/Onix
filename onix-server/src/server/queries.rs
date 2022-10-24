@@ -3,6 +3,7 @@ use async_graphql::{ComplexObject, Context, Object};
 use crate::{
     apps::{App, AppContainer, AppId, AppRunningStatus, ExistingAppContainer},
     docker,
+    stores::{StoreConfig, StoreContent, StoreInterface},
     utils::graphql::{CustomGraphQLError, Result},
 };
 
@@ -42,6 +43,13 @@ impl QueryRoot {
         let runner = get_runner_for(&state, id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
+    }
+
+    async fn pull_store(&self, store_config: StoreConfig) -> Result<StoreContent> {
+        StoreInterface::new(store_config)
+            .pull()
+            .await
+            .map_err(Into::into)
     }
 }
 

@@ -7,6 +7,7 @@ mod data;
 mod docker;
 mod saving;
 mod server;
+mod stores;
 mod utils;
 
 use self::cmd::Cmd;
