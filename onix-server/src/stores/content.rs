@@ -1,6 +1,6 @@
 use anyhow::{anyhow, bail, Context, Result};
 use async_graphql::SimpleObject;
-use miniz_oxide::{deflate::compress_to_vec_zlib, inflate::decompress_to_vec_zlib};
+use lz4_flex::{compress_prepend_size, decompress_size_prepended};
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
@@ -32,7 +32,7 @@ impl StoreContent {
         let ser = serde_json::to_string(self)
             .context("Failed to serialize the provided store as JSON")?;
 
-        let compressed = compress_to_vec_zlib(ser.as_bytes(), 10);
+        let compressed = compress_prepend_size(ser.as_bytes());
 
         if compressed.len() > MAX_STORE_SIZE_MB * 1024 * 1024 {
             bail!("The store is too big to be encoded :(");
@@ -46,7 +46,7 @@ impl StoreContent {
             bail!("Provided packed store is too big ({} bytes), anti-DDOS triggered with max limit being {} bytes", compressed.len(), MAX_STORE_SIZE_MB * 1024 * 1024);
         }
 
-        let bytes = decompress_to_vec_zlib(compressed)
+        let bytes = decompress_size_prepended(compressed)
             .map_err(|e| anyhow!("Failed to decompress the packed store: {e}"))?;
 
         let str =
