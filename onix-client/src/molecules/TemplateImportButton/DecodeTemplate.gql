@@ -1,0 +1,46 @@
+query DecodeTemplate($template: String!) {
+  decodeTemplate(template: $template) {
+    name
+    containers {
+      name
+      image
+      envVars {
+        name
+        value
+      }
+      portBindings {
+        hostPort {
+          port
+          portType
+        }
+        containerPort {
+          port
+          portType
+        }
+      }
+      volumes {
+        name
+        variant {
+          ... on AppVolumeTypeDisposableGraphQL {
+            containerPath
+          }
+
+          ... on AppVolumeTypeInternalGraphQL {
+            containerPath
+          }
+
+          ... on AppVolumeTypeExternalGraphQL {
+            containerPath
+            readonly
+          }
+
+          ... on AppVolumeTypeBindToPathGraphQL {
+            containerPath
+            hostPath
+            readonly
+          }
+        }
+      }
+    }
+  }
+}

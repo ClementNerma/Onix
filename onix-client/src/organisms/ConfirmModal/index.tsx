@@ -7,29 +7,27 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 
-export type ConfirmModalProps = {
+export type ConfirmModalProps = React.PropsWithChildren<{
   isOpen: ReturnType<typeof useDisclosure>['isOpen']
   onClose: ReturnType<typeof useDisclosure>['onClose']
   title?: string
-  message?: string
-  confirmationLabel?: boolean
-  cancellationLabel?: boolean
+  confirmationLabel?: string
+  cancellationLabel?: string
   onConfirm: () => void
-}
+}>
 
 export const ConfirmModal = ({
   isOpen,
   onClose,
   title,
-  message,
   confirmationLabel,
   cancellationLabel,
   onConfirm,
+  children,
 }: ConfirmModalProps) => {
   const onClick = useCallback(() => {
     onClose()
@@ -43,9 +41,7 @@ export const ConfirmModal = ({
         <ModalHeader>{title ?? 'Are you sure?'}</ModalHeader>
         <ModalCloseButton />
 
-        <ModalBody>
-          <Text>{message ?? 'Please confirm before proceeding.'}</Text>
-        </ModalBody>
+        <ModalBody>{children}</ModalBody>
 
         <ModalFooter>
           <Button onClick={onClose} mr={3}>

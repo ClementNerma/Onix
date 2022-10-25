@@ -11,7 +11,7 @@ export const validateRoute = (route: Route) => route
 
 export function useNavigate() {
   const navigate = useBaseNavigate()
-  return (route: Route) => navigate(route)
+  return (route: Route, state?: unknown) => navigate(route, { state })
 }
 
 export function useParams<S extends string>(names: S[]): Record<S, string> {

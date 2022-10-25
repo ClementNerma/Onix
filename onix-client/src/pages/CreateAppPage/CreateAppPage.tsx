@@ -3,17 +3,34 @@ import { useCallback, useEffect, useState } from 'react'
 import { MdAdd } from 'react-icons/md'
 import { IoIosRocket } from 'react-icons/io'
 import { BoxedStack } from '../../atoms/BoxedStack'
-import { AppContainerTemplateInput, useCreateAppMutation } from '../../graphql/generated'
+import {
+  AppContainerTemplateInput,
+  AppTemplate,
+  AppTemplateInput,
+  AppVolumeInput,
+  AppVolumeTypeGraphQl,
+  AppVolumeTypeGraphQlInput,
+  useCreateAppMutation,
+} from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
 import { CreateAppContainer } from './CreateAppContainer'
 import { ActionButton } from '../../atoms/ActionButton'
 import { useNavigate } from '../../router'
+import { useLocation } from 'react-router-dom'
+import { assertNever, getPropUnsafely } from '../../utils'
+
+export const FROM_TEMPLATE_STATE_PROPNAME = 'fromTemplate'
 
 export const CreateAppPage = () => {
+  const location = useLocation()
+
+  const fromTemplate = getPropUnsafely<AppTemplate>(location.state as unknown, FROM_TEMPLATE_STATE_PROPNAME)
+  const fromTemplateInput = fromTemplate ? appTemplateToInput(fromTemplate) : null
+
   const [createApp, creatingApp] = useCreateAppMutation()
 
-  const [appName, setAppName] = useState('')
-  const [appContainers, setAppContainers] = useState<AppContainerTemplateInput[]>([])
+  const [appName, setAppName] = useState(fromTemplateInput?.name ?? '')
+  const [appContainers, setAppContainers] = useState<AppContainerTemplateInput[]>(fromTemplateInput?.containers ?? [])
 
   const navigate = useNavigate()
   const toast = useToast()
@@ -114,4 +131,44 @@ export const CreateAppPage = () => {
       )}
     </>
   )
+}
+
+export function appTemplateToInput(template: AppTemplate): AppTemplateInput {
+  return {
+    name: template.name,
+    containers: template.containers.map<AppContainerTemplateInput>((container) => ({
+      ...container,
+      volumes: container.volumes.map<AppVolumeInput>((volume) => ({
+        name: volume.name,
+        variant: appTemplateVolumeTypeToInput(volume.variant),
+      })),
+    })),
+  }
+}
+
+export function appTemplateVolumeTypeToInput(template: AppVolumeTypeGraphQl): AppVolumeTypeGraphQlInput {
+  switch (template.__typename) {
+    // TODO: find a fix for this
+    case undefined:
+      const message = 'Missing typename in volume type'
+      alert(message)
+      throw new Error(message)
+
+    case 'AppVolumeTypeDisposableGraphQL':
+      return { disposable: { containerPath: template.containerPath } }
+
+    case 'AppVolumeTypeInternalGraphQL':
+      return { internal: { containerPath: template.containerPath } }
+
+    case 'AppVolumeTypeExternalGraphQL':
+      return { external: { containerPath: template.containerPath, readonly: template.readonly } }
+
+    case 'AppVolumeTypeBindToPathGraphQL':
+      return {
+        bindToPath: { containerPath: template.containerPath, hostPath: template.hostPath, readonly: template.readonly },
+      }
+
+    default:
+      return assertNever(template)
+  }
 }

@@ -6,6 +6,7 @@ import { AppActions } from '../../molecules/AppActions'
 import { Link } from '../../atoms/Link'
 import { MdAdd } from 'react-icons/md'
 import { useNavigate } from '../../router'
+import { TemplateImportButton } from '../../molecules/TemplateImportButton'
 
 export type AppsListProps = {
   apps: HomePageQuery['apps']
@@ -52,11 +53,15 @@ export const AppsList = ({ apps, showCreateButton, onStateChange, onFinished }: 
           ))}
           {showCreateButton === true && (
             <Tr>
-              <Td colSpan={4}>
+              <Td>
                 <Button colorScheme="green" leftIcon={<MdAdd />} onClick={() => navigate('/create')}>
                   Create
                 </Button>
               </Td>
+              <Td>
+                <TemplateImportButton />
+              </Td>
+              <Td colSpan={2}>&nbsp;</Td>
             </Tr>
           )}
         </Tbody>
