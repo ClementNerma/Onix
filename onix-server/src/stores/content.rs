@@ -29,8 +29,8 @@ impl StoreContent {
     }
 
     pub fn compress(&self) -> Result<Vec<u8>> {
-        let ser = serde_json::to_string(self)
-            .context("Failed to serialize the provided store as JSON")?;
+        let ser = serde_yaml::to_string(self)
+            .context("Failed to serialize the provided store as YAML")?;
 
         let compressed = compress_prepend_size(ser.as_bytes());
 
@@ -52,6 +52,6 @@ impl StoreContent {
         let str =
             std::str::from_utf8(&bytes).context("Failed to decode the packed store as UTF-8")?;
 
-        serde_json::from_str(&str).context("Failed to decode the packed store")
+        serde_yaml::from_str(&str).context("Failed to decode the packed store")
     }
 }

@@ -10,9 +10,9 @@ use clap::Parser;
 use log::{error, info, LevelFilter};
 
 #[derive(Parser)]
-#[clap(about, version, author, about = "Create a packed store from JSON")]
+#[clap(about, version, author, about = "Create a packed store from YAML")]
 struct Cmd {
-    #[clap(help = "Path to the JSON file to pack")]
+    #[clap(help = "Path to the YAML file to pack")]
     input_file: PathBuf,
 
     #[clap(help = "Path the output packed store file")]
@@ -55,12 +55,12 @@ fn inner_main(cmd: Cmd) -> Result<()> {
         bail!("Output path already exists");
     }
 
-    let input = fs::read_to_string(&input_file).context("Failed to read input JSON file")?;
+    let input = fs::read_to_string(&input_file).context("Failed to read input YAML file")?;
 
     info!("> Parsing the input file...");
 
     let store: StoreContent =
-        serde_json::from_str(&input).context("Failed to deserialize JSON file")?;
+        serde_yaml::from_str(&input).context("Failed to deserialize YAML file")?;
 
     info!("> Compressing...");
 

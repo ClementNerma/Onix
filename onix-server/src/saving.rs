@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 
 use crate::data::UserData;
 
-static USER_DATA_FILENAME: &str = "user_data.json";
+static USER_DATA_FILENAME: &str = "user_data.yml";
 
 pub fn try_load_user_data(data_dir: &Path) -> Result<Option<UserData>> {
     let data_file = data_dir.join(USER_DATA_FILENAME);
@@ -16,7 +16,7 @@ pub fn try_load_user_data(data_dir: &Path) -> Result<Option<UserData>> {
     let user_data = fs::read_to_string(&data_file).context("Failed to read user data file")?;
 
     let user_data =
-        serde_json::from_str::<UserData>(&user_data).context("Failed to parse user data")?;
+        serde_yaml::from_str::<UserData>(&user_data).context("Failed to parse user data")?;
 
     Ok(Some(user_data))
 }
@@ -27,7 +27,7 @@ pub fn save_user_data(data_dir: &Path, user_data: &UserData) -> Result<()> {
     }
 
     let user_data =
-        serde_json::to_string(&user_data).context("Failed to stringify user data before saving")?;
+        serde_yaml::to_string(&user_data).context("Failed to stringify user data before saving")?;
 
     fs::write(data_dir.join(USER_DATA_FILENAME), user_data).context("Failed to save user data")?;
 
