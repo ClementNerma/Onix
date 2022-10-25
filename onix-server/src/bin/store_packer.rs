@@ -27,6 +27,8 @@ fn main() {
 
     env_logger::builder()
         .filter_level(cmd.logging_level.unwrap_or(LevelFilter::Info))
+        .format_target(false)
+        .format_timestamp(None)
         .init();
 
     info!("Running store packer...");
