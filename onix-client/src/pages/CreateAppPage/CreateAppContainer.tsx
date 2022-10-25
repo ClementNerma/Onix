@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, Icon, IconButton } from '@chakra-ui/react'
+import { Button, Heading, Icon } from '@chakra-ui/react'
 import { MdDelete } from 'react-icons/md'
 import { BoxedStack } from '../../atoms/BoxedStack'
 import { AppContainerTemplateInput } from '../../graphql/generated'

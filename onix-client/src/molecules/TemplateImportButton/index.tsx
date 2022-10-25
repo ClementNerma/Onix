@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import { useCallback, useEffect, useState } from 'react'
 import { MdUpload } from 'react-icons/md'
 import { ActionButton } from '../../atoms/ActionButton'
-import { useDecodeTemplateLazyQuery } from '../../graphql/generated'
+import { AppTemplate, useDecodeTemplateLazyQuery } from '../../graphql/generated'
 import { ConfirmModal } from '../../organisms/ConfirmModal'
 import { FROM_TEMPLATE_STATE_PROPNAME } from '../../pages/CreateAppPage/CreateAppPage'
 import { useNavigate } from '../../router'
@@ -23,9 +23,15 @@ export const TemplateImportButton = () => {
   }, [decodeTemplate, templateDecoding.loading, templateText])
 
   useEffect(() => {
-    if (templateDecoding.data) {
-      navigate('/create', { [FROM_TEMPLATE_STATE_PROPNAME]: templateDecoding.data.decodeTemplate })
+    if (!templateDecoding.data) {
+      return
     }
+
+    // NOTE: The explicit typing here is *IMPORTANT*
+    //       It is used to ensure the underyling GraphQL query gets the correct data
+    const template: AppTemplate = templateDecoding.data.decodeTemplate
+
+    navigate('/create', { [FROM_TEMPLATE_STATE_PROPNAME]: template })
   }, [navigate, templateDecoding.data])
 
   return (

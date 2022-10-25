@@ -10,6 +10,8 @@ import {
   AppVolumeInput,
   AppVolumeTypeGraphQl,
   AppVolumeTypeGraphQlInput,
+  ContainerEnvironmentVarInput,
+  ContainerPortBindingInput,
   useCreateAppMutation,
 } from '../../graphql/generated'
 import { ValidableInput } from '../../molecules/ValidableInput/ValidableInput'
@@ -137,11 +139,27 @@ export function appTemplateToInput(template: AppTemplate): AppTemplateInput {
   return {
     name: template.name,
     containers: template.containers.map<AppContainerTemplateInput>((container) => ({
-      ...container,
+      name: container.name,
+      image: container.image,
+      envVars: container.envVars.map<ContainerEnvironmentVarInput>((envVar) => ({
+        name: envVar.name,
+        value: envVar.value,
+      })),
+      portBindings: container.portBindings.map<ContainerPortBindingInput>((binding) => ({
+        hostPort: {
+          port: binding.hostPort.port,
+          portType: binding.hostPort.portType,
+        },
+        containerPort: {
+          port: binding.containerPort.port,
+          portType: binding.containerPort.portType,
+        },
+      })),
       volumes: container.volumes.map<AppVolumeInput>((volume) => ({
         name: volume.name,
         variant: appTemplateVolumeTypeToInput(volume.variant),
       })),
+      dependsOn: container.dependsOn,
     })),
   }
 }
