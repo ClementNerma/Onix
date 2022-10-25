@@ -11,6 +11,8 @@ pub static MAX_STORE_SIZE_MB: usize = 10;
 #[derive(SimpleObject, Serialize, Deserialize)]
 pub struct StoreContent {
     apps: Vec<AppTemplate>,
+
+    #[serde(default = "get_now")]
     created_on: OffsetDateTime,
 }
 
