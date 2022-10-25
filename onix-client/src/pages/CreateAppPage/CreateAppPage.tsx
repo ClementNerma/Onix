@@ -1,4 +1,4 @@
-import { Button, Heading, useToast } from '@chakra-ui/react'
+import { Button, Heading } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { MdAdd } from 'react-icons/md'
 import { IoIosRocket } from 'react-icons/io'
@@ -35,7 +35,6 @@ export const CreateAppPage = () => {
   const [appContainers, setAppContainers] = useState<AppContainerTemplateInput[]>(fromTemplateInput?.containers ?? [])
 
   const navigate = useNavigate()
-  const toast = useToast()
 
   const submit = useCallback(() => {
     if (creatingApp.loading) {
@@ -53,16 +52,10 @@ export const CreateAppPage = () => {
   }, [appName, appContainers, createApp, creatingApp])
 
   useEffect(() => {
-    if (creatingApp.error) {
-      toast({
-        title: 'Application creation failed',
-        description: creatingApp.error.message,
-        status: 'error',
-      })
-    } else if (creatingApp.data) {
+    if (creatingApp.data) {
       navigate(`/apps/${creatingApp.data.createApp.id}`)
     }
-  }, [creatingApp, toast, navigate])
+  }, [creatingApp, navigate])
 
   const updateContainerInput = useCallback(
     (state: AppContainerTemplateInput, index: number) => {
@@ -127,6 +120,7 @@ export const CreateAppPage = () => {
           colorScheme="blue"
           icon={<IoIosRocket />}
           label="Create the application"
+          errorTitle="Failed to create the application"
           onClick={submit}
           state={creatingApp}
         />
