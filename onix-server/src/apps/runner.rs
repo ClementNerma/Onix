@@ -317,7 +317,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
                 AppVolumeType::Disposable { container_path } |
                 AppVolumeType::Internal { container_path } =>
                     mounts.push(ContainerMount {
-                        in_host: volume.name.clone(),
+                        in_host: container.get_docker_volume_name(&volume.name),
                         in_container: container_path.clone(),
                         readonly: false
                     }),

@@ -1,4 +1,8 @@
-use std::{hash::Hash, marker::PhantomData};
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+    marker::PhantomData,
+};
 
 use anyhow::{bail, Result};
 use async_graphql::SimpleObject;
@@ -120,6 +124,18 @@ impl AppContainer {
 
     pub fn docker_container_name(&self) -> String {
         format!("{NAME_PREFIX}{}_{}", self.app.id.encode(), self.id.encode())
+    }
+
+    pub fn get_docker_volume_name(&self, volume: &str) -> String {
+        let mut hasher = DefaultHasher::new();
+        volume.hash(&mut hasher);
+
+        format!(
+            "{NAME_PREFIX}{}_{}_{}",
+            self.app.id.encode(),
+            self.id.encode(),
+            base62::encode(hasher.finish())
+        )
     }
 
     pub fn to_template(self) -> AppContainerTemplate {
