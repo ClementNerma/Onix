@@ -114,7 +114,7 @@ pub async fn create_container(
     info!("==> Creating container '{name}'...");
 
     docker
-        .create_container(Some(CreateContainerOptions { name }), config)
+        .create_container(Some(CreateContainerOptions { name, platform: None }), config)
         .await
         .context("Failed to create Docker container")
 }
