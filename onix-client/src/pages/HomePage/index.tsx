@@ -6,7 +6,7 @@ export function HomePage() {
 	const { data, loading, error, refetch } = useHomePageQuery()
 
 	if (error) {
-		return <h2>Failed: {error.message}</h2>
+		return <pre style={{ color: 'red' }}>Failed: {error.message}</pre>
 	}
 
 	if (loading || !data) {
