@@ -5,10 +5,10 @@ import { BoxedStack } from '../atoms/BoxedStack'
 import { SideNav, SideNavItem } from '../organisms/SideNav'
 
 const pages: SideNavItem[] = [
-  {
-    route: '/',
-    text: 'Home',
-  },
+	{
+		route: '/',
+		text: 'Home',
+	},
 ]
 
 const FullPageContainer = styled(Flex)`
@@ -35,19 +35,19 @@ const SubOutletContainer = styled(Box)`
 `
 
 export const Template = () => {
-  return (
-    <FullPageContainer direction="row">
-      <SideNavContainer>
-        <SideNav items={pages} />
-      </SideNavContainer>
-      <Divider orientation="vertical" />
-      <OutletContainer>
-        <SubOutletContainer>
-          <BoxedStack noBorder spacing={5}>
-            <Outlet />
-          </BoxedStack>
-        </SubOutletContainer>
-      </OutletContainer>
-    </FullPageContainer>
-  )
+	return (
+		<FullPageContainer direction="row">
+			<SideNavContainer>
+				<SideNav items={pages} />
+			</SideNavContainer>
+			<Divider orientation="vertical" />
+			<OutletContainer>
+				<SubOutletContainer>
+					<BoxedStack noBorder spacing={5}>
+						<Outlet />
+					</BoxedStack>
+				</SubOutletContainer>
+			</OutletContainer>
+		</FullPageContainer>
+	)
 }

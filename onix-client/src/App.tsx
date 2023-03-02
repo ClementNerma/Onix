@@ -5,13 +5,13 @@ import { client } from './graphql/client'
 import { getRoutes } from './router'
 
 export const App = () => {
-  const router = createBrowserRouter(getRoutes())
+	const router = createBrowserRouter(getRoutes())
 
-  return (
-    <ApolloProvider client={client}>
-      <ChakraProvider>
-        <RouterProvider router={router} />
-      </ChakraProvider>
-    </ApolloProvider>
-  )
+	return (
+		<ApolloProvider client={client}>
+			<ChakraProvider>
+				<RouterProvider router={router} />
+			</ChakraProvider>
+		</ApolloProvider>
+	)
 }

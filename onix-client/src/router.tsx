@@ -10,50 +10,50 @@ export type Route = '/' | `/apps/${string}` | `/create`
 export const validateRoute = (route: Route) => route
 
 export function useNavigate() {
-  const navigate = useBaseNavigate()
-  return (route: Route, state?: unknown) => navigate(route, { state })
+	const navigate = useBaseNavigate()
+	return (route: Route, state?: unknown) => navigate(route, { state })
 }
 
 export function useParams<S extends string>(names: S[]): Record<S, string> {
-  const params = useBaseParams()
-  const out: Record<string, string> = {}
+	const params = useBaseParams()
+	const out: Record<string, string> = {}
 
-  for (const name of names) {
-    if (!Object.prototype.hasOwnProperty.call(params, name)) {
-      throw new Error(`Route parameter "${name}" is missing!`)
-    }
+	for (const name of names) {
+		if (!Object.prototype.hasOwnProperty.call(params, name)) {
+			throw new Error(`Route parameter "${name}" is missing!`)
+		}
 
-    const param = params[name]
+		const param = params[name]
 
-    if (typeof param !== 'string') {
-      throw new Error(`Route parameter "${name}" is missing or has the wrong type!`)
-    }
+		if (typeof param !== 'string') {
+			throw new Error(`Route parameter "${name}" is missing or has the wrong type!`)
+		}
 
-    out[name] = param
-  }
+		out[name] = param
+	}
 
-  return out as Record<S, string>
+	return out as Record<S, string>
 }
 
 export function getRoutes(): RouteObject[] {
-  return [
-    {
-      path: validateRoute('/'),
-      element: <Template />,
-      children: [
-        {
-          index: true,
-          element: <HomePage />,
-        },
-        {
-          path: validateRoute('/apps/:appId'),
-          element: <AppPage />,
-        },
-        {
-          path: validateRoute('/create'),
-          element: <CreateAppPage />,
-        },
-      ],
-    },
-  ]
+	return [
+		{
+			path: validateRoute('/'),
+			element: <Template />,
+			children: [
+				{
+					index: true,
+					element: <HomePage />,
+				},
+				{
+					path: validateRoute('/apps/:appId'),
+					element: <AppPage />,
+				},
+				{
+					path: validateRoute('/create'),
+					element: <CreateAppPage />,
+				},
+			],
+		},
+	]
 }
