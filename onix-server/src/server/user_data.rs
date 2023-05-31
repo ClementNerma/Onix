@@ -39,13 +39,13 @@ impl<'a> Deref for WritableUserData<'a> {
     type Target = UserData;
 
     fn deref(&self) -> &Self::Target {
-        &self.inner
+        self.inner
     }
 }
 
 impl<'a> DerefMut for WritableUserData<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
+        self.inner
     }
 }
 

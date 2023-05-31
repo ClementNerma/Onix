@@ -58,7 +58,7 @@ impl AppContainer {
                 bail!("Please provide a non-empty for all environment variables");
             }
 
-            if !NAME_VALIDATOR.is_match(&name) {
+            if !NAME_VALIDATOR.is_match(name) {
                 bail!(
                     "Invalid environment variable name provided '{name}', please follow regex: {}",
                     NAME_VALIDATOR.as_str()

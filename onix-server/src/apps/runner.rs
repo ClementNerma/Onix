@@ -36,7 +36,7 @@ impl<'a, 'b, 'c> AppRunner<'a, 'b, 'c> {
     }
 
     async fn list_existing_containers(&self) -> Result<Vec<ExistingAppContainer>> {
-        let containers = docker::list_containers(&self.docker)
+        let containers = docker::list_containers(self.docker)
             .await
             .context("Failed to obtain the list of existing Docker containers")?;
 

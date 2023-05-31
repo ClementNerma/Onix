@@ -52,6 +52,6 @@ impl StoreContent {
         let str =
             std::str::from_utf8(&bytes).context("Failed to decode the packed store as UTF-8")?;
 
-        serde_yaml::from_str(&str).context("Failed to decode the packed store")
+        serde_yaml::from_str(str).context("Failed to decode the packed store")
     }
 }

@@ -34,7 +34,7 @@ impl ExistingAppContainer {
 
         let name = &names[0];
 
-        let docker_container_name = if let Some(name) = name.strip_prefix("/") {
+        let docker_container_name = if let Some(name) = name.strip_prefix('/') {
             name.to_string()
         } else {
             name.to_string()

@@ -41,7 +41,7 @@ impl QueryRoot {
 
     async fn app_status(&self, ctx: &Context<'_>, id: AppId) -> Result<AppRunningStatus> {
         let state = &get_state(ctx).await;
-        let runner = get_runner_for(&state, id).await?;
+        let runner = get_runner_for(state, id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
     }
@@ -62,14 +62,14 @@ impl QueryRoot {
 impl App {
     async fn fetched_status(&self, ctx: &Context<'_>) -> Result<AppRunningStatus> {
         let state = &get_state(ctx).await;
-        let runner = get_runner_for(&state, self.id).await?;
+        let runner = get_runner_for(state, self.id).await?;
 
         runner.status().await.map_err(CustomGraphQLError::from)
     }
 
     async fn generate_template(&self, ctx: &Context<'_>) -> Result<String> {
         let state = &get_state(ctx).await;
-        let runner = get_runner_for(&state, self.id).await?;
+        let runner = get_runner_for(state, self.id).await?;
 
         Ok(serde_yaml::to_string(&runner.generate_app_template())
             .expect("Assertion error: failed to convert application template to YAML string"))
@@ -80,10 +80,10 @@ impl App {
 impl AppContainer {
     async fn docker_container(&self, ctx: &Context<'_>) -> Result<Option<ExistingAppContainer>> {
         let state = &get_state(ctx).await;
-        let runner = get_runner_for(&state, self.app.id).await?;
+        let runner = get_runner_for(state, self.app.id).await?;
 
         runner
-            .get_container_infos(&self)
+            .get_container_infos(self)
             .await
             .map_err(CustomGraphQLError::from)
     }

@@ -23,7 +23,7 @@ pub fn try_load_user_data(data_dir: &Path) -> Result<Option<UserData>> {
 
 pub fn save_user_data(data_dir: &Path, user_data: &UserData) -> Result<()> {
     if !data_dir.exists() {
-        fs::create_dir(&data_dir).context("Failed to create data directory")?;
+        fs::create_dir(data_dir).context("Failed to create data directory")?;
     }
 
     let user_data =

@@ -2,13 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::apps::App;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct UserData {
     pub apps: Vec<App>,
-}
-
-impl Default for UserData {
-    fn default() -> Self {
-        Self { apps: vec![] }
-    }
 }

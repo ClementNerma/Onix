@@ -68,7 +68,7 @@ fn inner_main(cmd: Cmd) -> Result<()> {
 
     info!("> Writing to output file...");
 
-    fs::write(&output_file, &compressed)
+    fs::write(&output_file, compressed)
         .context("Failed to write compressed store to the output file")?;
 
     info!("Successfully packed the store!");

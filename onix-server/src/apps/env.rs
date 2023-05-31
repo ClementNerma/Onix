@@ -21,7 +21,7 @@ impl AppRunnerEnvironment {
     }
 
     pub fn app_dir(&self, app: &AppIdentity) -> PathBuf {
-        self.apps_dir.join(&format!("{}-{}", app.name, app.id))
+        self.apps_dir.join(format!("{}-{}", app.name, app.id))
     }
 
     pub fn app_containers_dir(&self, app: &AppIdentity) -> PathBuf {
@@ -30,7 +30,7 @@ impl AppRunnerEnvironment {
 
     pub fn app_container_dir(&self, container: &AppContainerIdentity) -> PathBuf {
         self.app_containers_dir(&container.app)
-            .join(&format!("{}-{}", container.name, container.id))
+            .join(format!("{}-{}", container.name, container.id))
     }
 
     pub fn app_container_internal_volumes_dir(&self, container: &AppContainerIdentity) -> PathBuf {

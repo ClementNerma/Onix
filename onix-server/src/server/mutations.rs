@@ -30,7 +30,7 @@ impl MutationRoot {
     async fn create_app_containers(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, id).await?;
+        let runner = get_runner_for(state, id).await?;
 
         runner
             .create_containers()
@@ -42,7 +42,7 @@ impl MutationRoot {
     async fn start_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, id).await?;
+        let runner = get_runner_for(state, id).await?;
 
         runner.start().await.map(Into::into).map_err(Into::into)
     }
@@ -50,7 +50,7 @@ impl MutationRoot {
     async fn stop_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, id).await?;
+        let runner = get_runner_for(state, id).await?;
 
         runner.stop().await.map(Into::into).map_err(Into::into)
     }
@@ -58,7 +58,7 @@ impl MutationRoot {
     async fn remove_app_containers(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, id).await?;
+        let runner = get_runner_for(state, id).await?;
 
         runner
             .remove_containers()
@@ -70,7 +70,7 @@ impl MutationRoot {
     async fn destroy_app_containers(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &get_state(ctx).await;
 
-        let runner = get_runner_for(&state, id).await?;
+        let runner = get_runner_for(state, id).await?;
 
         runner
             .remove_containers()
@@ -82,7 +82,7 @@ impl MutationRoot {
     async fn remove_app(&self, ctx: &Context<'_>, id: AppId) -> Result<Void> {
         let state = &mut get_state(ctx).await;
 
-        get_runner_for(&state, id)
+        get_runner_for(state, id)
             .await?
             .ensure_can_be_removed()
             .await?;

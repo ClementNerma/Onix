@@ -24,9 +24,9 @@ impl From<anyhow::Error> for CustomGraphQLError {
     }
 }
 
-impl Into<async_graphql::Error> for CustomGraphQLError {
-    fn into(self) -> async_graphql::Error {
-        async_graphql::Error::new(self.0)
+impl From<CustomGraphQLError> for async_graphql::Error {
+    fn from(val: CustomGraphQLError) -> Self {
+        async_graphql::Error::new(val.0)
     }
 }
 
@@ -112,11 +112,20 @@ macro_rules! graphql_enum {
             }
         }
 
-        impl Into<$name> for [<$name GraphQL>] {
-            fn into(self) -> $name {
+        // impl Into<$name> for [<$name GraphQL>] {
+        //     fn into(self) -> $name {
+        //         #[allow(unused_variables)]
+        //         match self {
+        //             $(Self::$pat_name(extr) => $crate::graphql_enum!(@internal[args_for_into] $name $pat_name (extr) => $($($field_name),+)?)),+
+        //         }
+        //     }
+        // }
+
+        impl From<[<$name GraphQL>]> for $name {
+            fn from(value: [<$name GraphQL>]) -> Self {
                 #[allow(unused_variables)]
-                match self {
-                    $(Self::$pat_name(extr) => $crate::graphql_enum!(@internal[args_for_into] $name $pat_name (extr) => $($($field_name),+)?)),+
+                match value {
+                    $([<$name GraphQL>]::$pat_name(extr) => $crate::graphql_enum!(@internal[args_for_into] $name $pat_name (extr) => $($($field_name),+)?)),+
                 }
             }
         }

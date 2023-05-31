@@ -52,7 +52,7 @@ async fn inner_main(cmd: Cmd) -> Result<()> {
         // TODO: load user data from disk
         user_data: try_load_user_data(&data_dir)?,
 
-        user_data_saver: Box::new(move |user_data| save_user_data(&data_dir, user_data.clone())),
+        user_data_saver: Box::new(move |user_data| save_user_data(&data_dir, user_data)),
     };
 
     server::start(config).await
