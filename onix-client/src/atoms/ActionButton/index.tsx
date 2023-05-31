@@ -8,7 +8,7 @@ export type ActionButtonProps = {
 	loadingIcon?: React.ReactElement
 	errorIcon?: React.ReactElement
 	label: string
-	state: Pick<MutationResult<unknown> | QueryResult<unknown, unknown>, 'loading' | 'error' | 'data'>
+	state: Pick<MutationResult<unknown> | QueryResult<unknown, Record<string, never>>, 'loading' | 'error' | 'data'>
 	errorTitle?: string
 	redoable?: boolean
 	onClick: () => void
@@ -17,9 +17,9 @@ export type ActionButtonProps = {
 } & ButtonProps
 
 export enum ActionButtonState {
-	Loading,
-	Failed,
-	Done,
+	Loading = 'Loading',
+	Failed = 'Failed',
+	Done = 'Done',
 }
 
 export const ActionButton = ({
@@ -38,7 +38,7 @@ export const ActionButton = ({
 	const toast = useToast()
 
 	errorIcon ??= <MdError />
-	loadingIcon ??= <Spinner size="sm" />
+	loadingIcon ??= <Spinner size='sm' />
 
 	const dynIcon = state.error ? errorIcon : state.loading ? loadingIcon : icon
 

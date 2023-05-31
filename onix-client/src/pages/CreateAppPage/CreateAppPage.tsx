@@ -91,36 +91,36 @@ export const CreateAppPage = () => {
 
 			<BoxedStack spacing={5}>
 				<ValidableInput
-					type="text"
-					label="Application name"
+					type='text'
+					label='Application name'
 					value={appName}
 					onChange={setAppName}
 					isValid={(name) => /^[a-zA-Z0_9_\-]+$/.test(name)}
-					helper="Must only be letters, digits, dashes and underscores."
+					helper='Must only be letters, digits, dashes and underscores.'
 				/>
 			</BoxedStack>
 
-			<Heading size="md">Containers ({appContainers.length})</Heading>
+			<Heading size='md'>Containers ({appContainers.length})</Heading>
 
 			{appContainers.map((state, i) => (
 				<CreateAppContainer
-					key={i}
+					key={state.name}
 					state={state}
 					onChange={(state) => updateContainerInput(state, i)}
 					onRemove={() => removeContainerInput(i)}
 				/>
 			))}
 
-			<Button colorScheme="green" size="sm" leftIcon={<MdAdd />} onClick={addContainer}>
+			<Button colorScheme='green' size='sm' leftIcon={<MdAdd />} onClick={addContainer}>
 				Add a container
 			</Button>
 
 			{appContainers.length > 0 && (
 				<ActionButton
-					colorScheme="blue"
+					colorScheme='blue'
 					icon={<IoIosRocket />}
-					label="Create the application"
-					errorTitle="Failed to create the application"
+					label='Create the application'
+					errorTitle='Failed to create the application'
 					onClick={submit}
 					state={creatingApp}
 				/>
@@ -161,10 +161,11 @@ export function appTemplateToInput(template: AppTemplate): AppTemplateInput {
 export function appTemplateVolumeTypeToInput(template: AppVolumeTypeGraphQl): AppVolumeTypeGraphQlInput {
 	switch (template.__typename) {
 		// TODO: find a fix for this
-		case undefined:
+		case undefined: {
 			const message = 'Missing typename in volume type'
 			alert(message)
 			throw new Error(message)
+		}
 
 		case 'AppVolumeTypeDisposableGraphQL':
 			return { disposable: { containerPath: template.containerPath } }

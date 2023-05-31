@@ -16,9 +16,9 @@ export const SideNav = (props: SideNavProps) => {
 
 	return (
 		<List>
-			{props.items.map((item, i) => (
-				<ListItem key={i}>
-					<Button variant="ghost" onClick={() => navigate(item.route)}>
+			{props.items.map((item) => (
+				<ListItem key={item.route}>
+					<Button variant='ghost' onClick={() => navigate(item.route)}>
 						{item.text}
 					</Button>
 				</ListItem>

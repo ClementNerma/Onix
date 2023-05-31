@@ -47,16 +47,16 @@ export const ContainerPortBindings = ({ state, onChange }: ContainerPortBindings
 						<Th>Actions</Th>
 						<Th>Host port type</Th>
 						<Th>Host port</Th>
-						<Th></Th>
+						<Th>Direction</Th>
 						<Th>Container port</Th>
 						<Th>Container port type</Th>
 					</Tr>
 				</Thead>
 				<Tbody>
 					{state.map(({ hostPort, containerPort }, i) => (
-						<Tr key={i}>
+						<Tr key={`${hostPort.port}-${containerPort.port}`}>
 							<Td>
-								<IconButton size="xs" as={MdDelete} onClick={() => removeVar(i)} aria-label="Remove this binding" />
+								<IconButton size='xs' as={MdDelete} onClick={() => removeVar(i)} aria-label='Remove this binding' />
 							</Td>
 							<Port state={hostPort} onChange={(hostPort) => updateVar({ hostPort, containerPort }, i)} />
 							<Td>&lt;=&gt;</Td>
@@ -69,7 +69,7 @@ export const ContainerPortBindings = ({ state, onChange }: ContainerPortBindings
 					))}
 					<Tr>
 						<Td colSpan={3}>
-							<Button colorScheme="green" size="sm" leftIcon={<MdAdd />} onClick={addVar}>
+							<Button colorScheme='green' size='sm' leftIcon={<MdAdd />} onClick={addVar}>
 								Add a port binding
 							</Button>
 						</Td>
@@ -114,7 +114,7 @@ const Port = ({ state, onChange, reverse }: PortProps) => {
 	const right = (
 		<Td>
 			<Input
-				type="number"
+				type='number'
 				isInvalid={isPortNumberInvalid}
 				value={state.port}
 				onChange={(e) => setPortNumber(e.target.value)}

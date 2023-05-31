@@ -62,12 +62,12 @@ export const ContainerVolumes = ({ state, onChange }: ContainerVolumesProps) => 
 				</Thead>
 				<Tbody>
 					{state.map(({ name, variant }, i) => (
-						<Tr key={i}>
+						<Tr key={name}>
 							<Td>
-								<IconButton size="xs" as={MdDelete} onClick={() => removeVolume(i)} aria-label="Remove this volume" />
+								<IconButton size='xs' as={MdDelete} onClick={() => removeVolume(i)} aria-label='Remove this volume' />
 							</Td>
 							<Td>
-								<Input type="text" value={name} onChange={(e) => updateVolume({ name: e.target.value, variant }, i)} />
+								<Input type='text' value={name} onChange={(e) => updateVolume({ name: e.target.value, variant }, i)} />
 							</Td>
 							<Td>
 								<ContainerVolumeVariantSelector
@@ -80,7 +80,7 @@ export const ContainerVolumes = ({ state, onChange }: ContainerVolumesProps) => 
 					))}
 					<Tr>
 						<Td colSpan={3}>
-							<Button colorScheme="green" size="sm" leftIcon={<MdAdd />} onClick={addVolume}>
+							<Button colorScheme='green' size='sm' leftIcon={<MdAdd />} onClick={addVolume}>
 								Add a volume
 							</Button>
 						</Td>
@@ -139,7 +139,7 @@ const ContainerVolumeVariant = ({ variant, onChange }: ContainerVolumeVariantPro
 					</Td>
 					<Td>
 						<Input
-							type="text"
+							type='text'
 							value={union.value.containerPath}
 							onChange={(e) => onUpdate(union, { containerPath: e.target.value })}
 						/>
@@ -157,7 +157,7 @@ const ContainerVolumeVariant = ({ variant, onChange }: ContainerVolumeVariantPro
 						<em>Internal</em>
 					</Td>
 					<Input
-						type="text"
+						type='text'
 						value={union.value.containerPath}
 						onChange={(e) => onUpdate(union, { containerPath: e.target.value })}
 					/>
@@ -175,7 +175,7 @@ const ContainerVolumeVariant = ({ variant, onChange }: ContainerVolumeVariantPro
 					</Td>
 					<Td>
 						<Input
-							type="text"
+							type='text'
 							value={union.value.containerPath}
 							onChange={(e) => onUpdate(union, { containerPath: e.target.value })}
 						/>
@@ -194,14 +194,14 @@ const ContainerVolumeVariant = ({ variant, onChange }: ContainerVolumeVariantPro
 				<>
 					<Td>
 						<Input
-							type="text"
+							type='text'
 							value={union.value.hostPath}
 							onChange={(e) => onUpdate(union, { hostPath: e.target.value })}
 						/>
 					</Td>
 					<Td>
 						<Input
-							type="text"
+							type='text'
 							value={union.value.containerPath}
 							onChange={(e) => onUpdate(union, { containerPath: e.target.value })}
 						/>

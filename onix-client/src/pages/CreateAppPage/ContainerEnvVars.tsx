@@ -39,21 +39,21 @@ export const ContainerEnvVars = ({ state, onChange }: ContainerEnvVarsProps) => 
 				</Thead>
 				<Tbody>
 					{state.map(({ name, value }, i) => (
-						<Tr key={i}>
+						<Tr key={name}>
 							<Td>
-								<IconButton size="xs" as={MdDelete} onClick={() => removeVar(i)} aria-label="Remove this container" />
+								<IconButton size='xs' as={MdDelete} onClick={() => removeVar(i)} aria-label='Remove this container' />
 							</Td>
 							<Td>
-								<Input type="text" value={name} onChange={(e) => updateVar({ name: e.target.value, value }, i)} />
+								<Input type='text' value={name} onChange={(e) => updateVar({ name: e.target.value, value }, i)} />
 							</Td>
 							<Td>
-								<Input type="text" value={value} onChange={(e) => updateVar({ name, value: e.target.value }, i)} />
+								<Input type='text' value={value} onChange={(e) => updateVar({ name, value: e.target.value }, i)} />
 							</Td>
 						</Tr>
 					))}
 					<Tr>
 						<Td colSpan={3}>
-							<Button colorScheme="green" size="sm" leftIcon={<MdAdd />} onClick={addVar}>
+							<Button colorScheme='green' size='sm' leftIcon={<MdAdd />} onClick={addVar}>
 								Add a variable
 							</Button>
 						</Td>
