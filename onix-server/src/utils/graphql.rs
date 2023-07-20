@@ -112,19 +112,10 @@ macro_rules! graphql_enum {
             }
         }
 
-        // impl Into<$name> for [<$name GraphQL>] {
-        //     fn into(self) -> $name {
-        //         #[allow(unused_variables)]
-        //         match self {
-        //             $(Self::$pat_name(extr) => $crate::graphql_enum!(@internal[args_for_into] $name $pat_name (extr) => $($($field_name),+)?)),+
-        //         }
-        //     }
-        // }
-
         impl From<[<$name GraphQL>]> for $name {
-            fn from(value: [<$name GraphQL>]) -> Self {
+            fn from(from: [<$name GraphQL>]) -> Self {
                 #[allow(unused_variables)]
-                match value {
+                match from {
                     $([<$name GraphQL>]::$pat_name(extr) => $crate::graphql_enum!(@internal[args_for_into] $name $pat_name (extr) => $($($field_name),+)?)),+
                 }
             }
