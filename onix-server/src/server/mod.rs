@@ -59,7 +59,7 @@ pub async fn start(config: StateConfig) -> Result<()> {
         panic!("Assertion error: user data saver loop unexpectedly exited!");
     });
 
-    info!("Starting the server...");
+    info!("Starting the server on {addr}...");
 
     Server::bind(&addr)
         .serve(app.into_make_service())
